@@ -17,6 +17,14 @@
       100% { transform: none; opacity: 1; }
     }
 
+    @keyframes glitch-hover {
+      0% { transform: none; }
+      25% { transform: skew(-5deg); }
+      50% { transform: skew(5deg); }
+      75% { transform: skew(-2deg); }
+      100% { transform: none; }
+    }
+
     body {
       margin: 0;
       padding: 0;
@@ -29,6 +37,11 @@
       font-family: 'Orbitron', sans-serif;
       font-size: 3rem;
       letter-spacing: 2px;
+    }
+
+    a {
+      text-decoration: none;
+      color: inherit;
     }
 
     .line {
@@ -44,6 +57,11 @@
       color: #000;
       font-family: 'Orbitron', sans-serif;
       animation: glitch 2s infinite;
+      transition: transform 0.3s;
+    }
+
+    .play-btn:hover {
+      animation: glitch-hover 0.5s infinite;
     }
 
     .play-style {
@@ -56,10 +74,10 @@
   </style>
 </head>
 <body>
-  <div class="line">0</div>
-  <div class="line">SUGAR</div>
-  <div class="line">CROSS</div>
-  <div class="line">WRAITH</div>
+  <a href="https://open.spotify.com/artist/270SgoQaguqwQT9OLHYRrx" target="_blank" class="line">0</a>
+  <a href="https://open.spotify.com/artist/2pJH9JdXVVkUZRDK7AANMe" target="_blank" class="line">SUGAR</a>
+  <a href="https://open.spotify.com/artist/270SgoQaguqwQT9OLHYRrx" target="_blank" class="line">CROSS</a>
+  <a href="https://open.spotify.com/artist/2pJH9JdXVVkUZRDK7AANMe" target="_blank" class="line">WRAITH</a>
 
   <button class="play-btn play-style" id="playBtn">▶</button>
   <audio id="audio" preload="auto"></audio>
@@ -84,7 +102,7 @@
         audio.currentTime = 0;
       }
       audio.play();
-      playBtn.textContent = '▐▐';
+      playBtn.textContent = '⏸';
       playBtn.classList.remove('play-style');
       playBtn.classList.add('pause-style');
       isPlaying = true;
@@ -92,15 +110,11 @@
 
     playBtn.addEventListener('click', () => {
       if (!isPlaying) {
-        if (audio.src === '') {
-          playTrack(currentIndex);
-        } else {
-          audio.play();
-          playBtn.textContent = '▐▐';
-          playBtn.classList.remove('play-style');
-          playBtn.classList.add('pause-style');
-          isPlaying = true;
-        }
+        audio.play();
+        playBtn.textContent = '⏸';
+        playBtn.classList.remove('play-style');
+        playBtn.classList.add('pause-style');
+        isPlaying = true;
       } else {
         audio.pause();
         playBtn.textContent = '▶';
