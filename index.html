@@ -74,7 +74,7 @@
       cursor: pointer;
       color: inherit;
       font-family: 'Orbitron', sans-serif;
-      font-size: 8rem;
+      font-size: 5rem;
       position: relative;
     }
 
@@ -161,12 +161,12 @@
         ctx.fillStyle = '#fff';
         const xLeft = (canvas.width / 2) - ((i + 1) * barWidth);
         const xRight = (canvas.width / 2) + (i * barWidth);
-        ctx.fillRect(xLeft, canvas.height - height, barWidth - 2, height);
-        ctx.fillRect(xRight, canvas.height - height, barWidth - 2, height);
+        ctx.fillRect(xLeft, canvas.height - height, barWidth - 1, height);
+        ctx.fillRect(xRight, canvas.height - height, barWidth - 1, height);
       }
     }
 
-    const particles = Array.from({length: 40}, () => ({
+    const particles = Array.from({length: 40000}, () => ({
       x: Math.random() * particleCanvas.width,
       y: Math.random() * particleCanvas.height,
       symbol: Math.random() > 0.5 ? '0' : 'X',
@@ -175,7 +175,7 @@
 
     function animateParticles() {
       particleCtx.clearRect(0, 0, particleCanvas.width, particleCanvas.height);
-      particleCtx.font = '20px Orbitron';
+      particleCtx.font = '16px Orbitron';
       particleCtx.fillStyle = '#fff';
       particles.forEach(p => {
         p.y += p.speed;
@@ -197,23 +197,14 @@
         if (!audioContext) setupVisualizer();
         document.body.classList.add('playing');
         playBtn.textContent = '⬜';
-        playBtn.style.fontSize = '4rem';
         displayTrackName(tracks[currentIndex].name);
         isPlaying = true;
       } else {
         audio.pause();
         document.body.classList.remove('playing');
         playBtn.textContent = '▶';
-        playBtn.style.fontSize = '8rem';
         isPlaying = false;
       }
-    });
-
-    audio.addEventListener('ended', () => {
-      currentIndex = (currentIndex + 1) % tracks.length;
-      audio.src = tracks[currentIndex].src;
-      audio.play();
-      displayTrackName(tracks[currentIndex].name);
     });
 
     function resizeCanvas() {
