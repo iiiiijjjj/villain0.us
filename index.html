@@ -37,8 +37,8 @@
       background-color: #fff;
       color: #000;
       font-family: 'Orbitron', sans-serif;
-      font-size: 3rem;
-      letter-spacing: 2px;
+      font-size: 2rem;
+      letter-spacing: 1px;
       transition: background 0.5s, color 0.5s;
       position: relative;
       overflow: hidden;
@@ -52,7 +52,7 @@
     a.line {
       text-decoration: none;
       color: inherit;
-      font-size: 8rem;
+      font-size: 4rem;
       display: block;
       width: 100%;
       text-align: center;
@@ -68,13 +68,13 @@
     }
 
     .play-btn {
-      margin-top: 2rem;
+      margin-top: 1.5rem;
       background: none;
       border: none;
       cursor: pointer;
       color: inherit;
       font-family: 'Orbitron', sans-serif;
-      font-size: 5rem;
+      font-size: 3rem;
       position: relative;
     }
 
@@ -83,7 +83,7 @@
       bottom: 10%;
       width: 100%;
       text-align: center;
-      font-size: 2rem;
+      font-size: 1.5rem;
       color: #fff;
       opacity: 0.8;
       display: none;
@@ -168,6 +168,25 @@
       }
     }
 
+    const particles = Array.from({length: 1000}, () => ({
+      x: Math.random() * window.innerWidth,
+      y: Math.random() * window.innerHeight,
+      symbol: Math.random() > 0.5 ? '0' : 'X',
+      speed: Math.random() * 0.5 + 0.2
+    }));
+
+    function animateParticles() {
+      particleCtx.clearRect(0, 0, particleCanvas.width, particleCanvas.height);
+      particleCtx.font = '16px Orbitron';
+      particleCtx.fillStyle = '#fff';
+      particles.forEach(p => {
+        p.y += p.speed;
+        if (p.y > particleCanvas.height) p.y = 0;
+        particleCtx.fillText(p.symbol, p.x, p.y);
+      });
+      requestAnimationFrame(animateParticles);
+    }
+
     function displayTrackName(name) {
       trackNameDisplay.textContent = name;
       trackNameDisplay.style.display = 'block';
@@ -190,11 +209,12 @@
       }
     });
 
-    window.addEventListener('resize', () => {
+    function resizeCanvas() {
       canvas.width = particleCanvas.width = window.innerWidth;
       canvas.height = particleCanvas.height = window.innerHeight;
-    });
-    window.dispatchEvent(new Event('resize'));
+    }
+    window.addEventListener('resize', resizeCanvas);
+    resizeCanvas();
   </script>
 </body>
 </html>
