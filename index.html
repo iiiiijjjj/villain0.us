@@ -261,21 +261,32 @@
 
     playBtn.addEventListener('click', async () => {
   try {
-    if (!audioContext) setupVisualizer();
-    await audioContext.resume();
+    console.log('Play button clicked');
+    if (!audioContext) {
+      console.log('No audioContext, setting up visualizer');
+      setupVisualizer();
+    }
+
+    if (audioContext.state !== 'running') {
+      await audioContext.resume();
+      console.log('AudioContext resumed');
+    }
 
     if (!isPlaying) {
       await audio.play();
+      console.log('Audio playback started');
       document.body.classList.add('playing');
       displayTrackName(shuffled[currentIndex].name);
       isPlaying = true;
     } else {
       audio.pause();
+      console.log('Audio paused');
       document.body.classList.remove('playing');
       isPlaying = false;
     }
   } catch (err) {
     console.error("Audio play failed:", err);
+    alert('Failed to start audio. Try clicking again or check browser permissions.');
   }
 });
 
