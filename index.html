@@ -137,7 +137,9 @@
   { src: 'https://iiiiijjjj.github.io/villain0.us/heavenearth%20(mixed).mp3', name: 'HEAVENEARTH' },
   { src: 'https://iiiiijjjj.github.io/villain0.us/zero%20cross%20-%20incredible%20(mixed)%202.mp3', name: 'INCREDIBLE' },
   { src: 'https://iiiiijjjj.github.io/villain0.us/zerocross%20-%20ollie%20(mixed).mp3', name: 'OLLIE' }
-];) {
+];
+
+      function shuffle(array) {
         for (let i = array.length - 1; i > 0; i--) {
           const j = Math.floor(Math.random() * (i + 1));
           [array[i], array[j]] = [array[j], array[i]];
@@ -243,25 +245,34 @@
       }
 
       playBtn.addEventListener('click', async () => {
-        try {
-          if (!audioContext) setupVisualizer();
-          await audioContext.resume();
-
-          if (!isPlaying) {
-            await audio.play();
-            document.body.classList.add('playing');
-            displayTrackName(shuffled[currentIndex].name);
-            isPlaying = true;
-          } else {
-            audio.pause();
-            document.body.classList.remove('playing');
-            isPlaying = false;
-          }
-        } catch (err) {
-          console.error("Audio play failed:", err);
-          alert('Failed to start audio. Try clicking again or check browser permissions.');
-        }
-      });
+  try {
+    console.log('▶ Button clicked');
+    if (!audioContext) {
+      console.log('Setting up AudioContext');
+      setupVisualizer();
+    }
+    if (audioContext.state !== 'running') {
+      await audioContext.resume();
+      console.log('AudioContext resumed');
+    }
+    console.log('Audio source:', audio.src);
+    if (!isPlaying) {
+      await audio.play();
+      console.log('Track is playing');
+      document.body.classList.add('playing');
+      displayTrackName(shuffled[currentIndex].name);
+      isPlaying = true;
+    } else {
+      audio.pause();
+      console.log('Track paused');
+      document.body.classList.remove('playing');
+      isPlaying = false;
+    }
+  } catch (err) {
+    console.error("Audio play failed:", err);
+    alert('⚠️ Failed to start audio. Check browser permissions or click again.');
+  }
+});
 
       function displayTrackName(name) {
         trackNameDisplay.textContent = name;
