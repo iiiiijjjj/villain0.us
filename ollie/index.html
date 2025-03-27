@@ -50,16 +50,17 @@
     #track-name {
       margin-top: 1rem;
       font-size: 2rem;
-      color: #fff;
       text-transform: uppercase;
       font-family: 'Orbitron', sans-serif;
       z-index: 10;
       transition: all 0.3s ease;
       animation: none;
+      color: #000;
     }
 
     .playing #track-name {
       animation: pulse 1s infinite alternate;
+      color: #fff;
     }
 
     .spotify-wrapper {
@@ -69,22 +70,43 @@
       overflow: hidden;
       border-radius: 12px;
       transition: all 0.4s ease;
+      position: relative;
     }
 
     .playing .spotify-wrapper {
-      width: 130px;
-      height: 130px;
+      width: 100px;
+      height: 100px;
+      border-radius: 12px;
       animation: pulse 1s infinite alternate;
+    }
+
+    .spotify-glow {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100px;
+      height: 100px;
+      border-radius: 12px;
+      background: white;
+      opacity: 0.05;
+      box-shadow: 0 0 20px white, 0 0 40px white;
+      z-index: 1;
+      display: none;
+    }
+
+    .playing .spotify-glow {
+      display: block;
     }
 
     iframe {
       width: 100%;
       height: 100%;
       border: none;
-      border-radius: 6px;
+      border-radius: 12px;
       pointer-events: none;
       opacity: 0.95;
-      filter: grayscale(100%) brightness(1.2) contrast(1.1) drop-shadow(0 0 4px white);
+      position: relative;
+      z-index: 2;
     }
 
     canvas {
@@ -98,8 +120,8 @@
     }
 
     @keyframes pulse {
-      0% { text-shadow: 0 0 10px #fff; }
-      100% { text-shadow: 0 0 30px #fff; }
+      0% { box-shadow: 0 0 10px #fff; text-shadow: 0 0 10px #fff; }
+      100% { box-shadow: 0 0 30px #fff; text-shadow: 0 0 30px #fff; }
     }
   </style>
 </head>
@@ -112,6 +134,7 @@
   <div id="track-name">OLLIE</div>
 
   <div class="spotify-wrapper" id="spotifyWrap">
+    <div class="spotify-glow"></div>
     <iframe 
       src="https://open.spotify.com/embed/album/2BneKwMX7HX7lKHAeDmPWK?utm_source=generator&theme=0" 
       allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture" 
