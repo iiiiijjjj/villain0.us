@@ -47,21 +47,22 @@
       z-index: 10;
     }
 
-    @keyframes pulse {
-      0% { text-shadow: 0 0 10px #fff; }
-      100% { text-shadow: 0 0 30px #fff; }
-    }
-
     #track-name {
       margin-top: 1rem;
       font-size: 2rem;
       color: #fff;
       text-transform: uppercase;
-      display: block;
+      font-family: 'Orbitron', sans-serif;
+      z-index: 10;
+      transition: all 0.3s ease;
+    }
+
+    .playing #track-name {
+      animation: pulse 1s infinite alternate;
     }
 
     .spotify-wrapper {
-      margin-top: 1rem;
+      margin-top: 2rem;
       width: 320px;
       height: 80px;
       overflow: hidden;
@@ -70,8 +71,9 @@
     }
 
     .playing .spotify-wrapper {
-      width: 100px;
+      width: 270px;
       height: 100px;
+      animation: pulse 1s infinite alternate;
     }
 
     iframe {
@@ -93,6 +95,11 @@
       pointer-events: none;
       z-index: 0;
     }
+
+    @keyframes pulse {
+      0% { text-shadow: 0 0 10px #fff; }
+      100% { text-shadow: 0 0 30px #fff; }
+    }
   </style>
 </head>
 <body>
@@ -100,6 +107,7 @@
   <div class="line">CR0SS</div>
 
   <button class="play-btn" id="playBtn">𖦤</button>
+
   <div id="track-name">OLLIE</div>
 
   <div class="spotify-wrapper" id="spotifyWrap">
