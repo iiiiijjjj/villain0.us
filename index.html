@@ -52,7 +52,7 @@
     a.line {
       text-decoration: none;
       color: inherit;
-      font-size: 12rem;
+      font-size: 5rem;
       display: block;
       width: 100%;
       text-align: center;
@@ -74,7 +74,7 @@
       cursor: pointer;
       color: inherit;
       font-family: 'Orbitron', sans-serif;
-      font-size: 3.5rem;
+      font-size: 6rem;
       position: relative;
     }
 
@@ -109,7 +109,7 @@
   <a href="https://open.spotify.com/artist/270SgoQaguqwQT9OLHYRrx" target="_blank" class="line">0</a>
   <a href="https://open.spotify.com/artist/270SgoQaguqwQT9OLHYRrx" target="_blank" class="line">CROSS</a>
 
-  <button class="play-btn" id="playBtn">⏯</button>
+  <button class="play-btn" id="playBtn">▶</button>
   <div id="track-name"></div>
   <audio id="audio" preload="auto" crossorigin="anonymous"></audio>
   <canvas id="visualizer"></canvas>
@@ -170,11 +170,13 @@
         audio.play();
         if (!audioContext) setupVisualizer();
         document.body.classList.add('playing');
+        playBtn.textContent = '⬜';
         displayTrackName(tracks[currentIndex].name);
         isPlaying = true;
       } else {
         audio.pause();
         document.body.classList.remove('playing');
+        playBtn.textContent = '▶';
         isPlaying = false;
       }
     });
