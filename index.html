@@ -38,12 +38,17 @@
 
     .play-btn {
       margin-top: 2rem;
-      font-size: 2rem;
+      font-size: 2.5rem;
       background: none;
       border: none;
       cursor: pointer;
       color: #000;
       font-family: 'Orbitron', sans-serif;
+      animation: glitch 2s infinite;
+    }
+
+    .pause-style {
+      font-size: 2rem;
     }
   </style>
 </head>
@@ -67,20 +72,36 @@
     const playBtn = document.getElementById('playBtn');
     let isPlaying = false;
     let currentIndex = Math.floor(Math.random() * tracks.length);
+    let hasPlayedOnce = false;
 
-    function playTrack(index) {
-      audio.src = tracks[index];
+    audio.src = tracks[currentIndex];
+
+    function playTrack(index, restart = false) {
+      if (restart || !hasPlayedOnce) {
+        audio.src = tracks[index];
+        audio.currentTime = 0;
+        hasPlayedOnce = true;
+      }
       audio.play();
       playBtn.textContent = '▐▐';
+      playBtn.classList.add('pause-style');
       isPlaying = true;
     }
 
     playBtn.addEventListener('click', () => {
       if (!isPlaying) {
-        playTrack(currentIndex);
+        if (audio.src === '') {
+          playTrack(currentIndex, true);
+        } else {
+          audio.play();
+          playBtn.textContent = '▐▐';
+          playBtn.classList.add('pause-style');
+          isPlaying = true;
+        }
       } else {
         audio.pause();
         playBtn.textContent = '▶';
+        playBtn.classList.remove('pause-style');
         isPlaying = false;
       }
     });
@@ -91,7 +112,8 @@
         nextIndex = Math.floor(Math.random() * tracks.length);
       } while (nextIndex === currentIndex);
       currentIndex = nextIndex;
-      playTrack(currentIndex);
+      hasPlayedOnce = false;
+      playTrack(currentIndex, true);
     });
   </script>
 </body>
