@@ -155,8 +155,7 @@
       return array;
     }
 
-    tracks = shuffle(tracks);
-
+    let shuffled = shuffle([...tracks]);
     const audio = document.getElementById('audio');
     const crackle = document.getElementById('crackle');
     const playBtn = document.getElementById('playBtn');
@@ -174,7 +173,7 @@
     let glitchCooldown = 0;
     let killBuffer = '';
 
-    audio.src = tracks[currentIndex].src;
+    audio.src = shuffled[currentIndex].src;
 
     function setupVisualizer() {
       audioContext = new (window.AudioContext || window.webkitAudioContext)();
@@ -194,8 +193,8 @@
       analyser.getByteFrequencyData(dataArray);
       ctx.clearRect(0, 0, canvas.width, canvas.height);
       const barWidth = canvas.width / bufferLength;
-
       const bass = dataArray.slice(0, 10).reduce((a, b) => a + b, 0) / 10;
+
       playBtn.style.textShadow = `0 0 ${bass / 4}px #fff, 0 0 ${bass / 2}px #fff`;
 
       if (bass > 200) {
@@ -250,34 +249,34 @@
         });
       });
       crackle.onended = () => {
-        currentIndex = (currentIndex + 1) % tracks.length;
-        audio.src = tracks[currentIndex].src;
-        audio.play();
-        displayTrackName(tracks[currentIndex].name);
-        crackle.onended = null;
-      }
+        nextTrack();
+      };
     });
 
-    playBtn.addEventListener('click', () => {
-      if (!isPlaying) {
+    function nextTrack() {
+      currentIndex = (currentIndex + 1) % shuffled.length;
+      audio.src = shuffled[currentIndex].src;
+      audio.play();
+      displayTrackName(shuffled[currentIndex].name);
+      crackle.onended = null;
+    }
+
+    playBtn.addEventListener('click', async () => {
+      try {
         if (!audioContext) setupVisualizer();
-        audioContext.resume().then(() => {
-          audio.play().then(() => {
-            document.body.classList.add('playing');
-            displayTrackName(tracks[currentIndex].name);
-            isPlaying = true;
-          });
-        });
-      } else {
-        audio.pause();
-        document.body.classList.remove('playing');
-        isPlaying = false;
-      }
-    });
-      } else {
-        audio.pause();
-        document.body.classList.remove('playing');
-        isPlaying = false;
+        await audioContext.resume();
+        if (!isPlaying) {
+          await audio.play();
+          document.body.classList.add('playing');
+          displayTrackName(shuffled[currentIndex].name);
+          isPlaying = true;
+        } else {
+          audio.pause();
+          document.body.classList.remove('playing');
+          isPlaying = false;
+        }
+      } catch (err) {
+        console.error("Playback error:", err);
       }
     });
 
@@ -310,13 +309,12 @@
       audioContext?.resume().then(() => {
         audio.play().then(() => {
           document.body.classList.add('playing');
-          displayTrackName(tracks[currentIndex].name);
+          displayTrackName(shuffled[currentIndex].name);
           isPlaying = true;
         }).catch(() => {
           console.log('Autoplay blocked. Waiting for user interaction.');
         });
       });
-    });
     });
   </script>
 </body>
