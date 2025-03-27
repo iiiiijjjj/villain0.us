@@ -262,11 +262,18 @@
       if (!isPlaying) {
         if (!audioContext) setupVisualizer();
         audioContext.resume().then(() => {
-          audio.play();
-          document.body.classList.add('playing');
-          displayTrackName(tracks[currentIndex].name);
-          isPlaying = true;
+          audio.play().then(() => {
+            document.body.classList.add('playing');
+            displayTrackName(tracks[currentIndex].name);
+            isPlaying = true;
+          });
         });
+      } else {
+        audio.pause();
+        document.body.classList.remove('playing');
+        isPlaying = false;
+      }
+    });
       } else {
         audio.pause();
         document.body.classList.remove('playing');
@@ -300,12 +307,16 @@
 
     window.addEventListener('load', () => {
       if (!audioContext) setupVisualizer();
-      audioContext.resume().then(() => {
-        audio.play();
-        document.body.classList.add('playing');
-        displayTrackName(tracks[currentIndex].name);
-        isPlaying = true;
+      audioContext?.resume().then(() => {
+        audio.play().then(() => {
+          document.body.classList.add('playing');
+          displayTrackName(tracks[currentIndex].name);
+          isPlaying = true;
+        }).catch(() => {
+          console.log('Autoplay blocked. Waiting for user interaction.');
+        });
       });
+    });
     });
   </script>
 </body>
