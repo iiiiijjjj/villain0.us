@@ -203,18 +203,16 @@
         document.body.classList.remove('crt');
       }
 
-      for (let i = 0; i < bufferLength; i++) {
+      for (let i = 0; i < bufferLength / 2; i++) {
         const height = dataArray[i] * 2;
         ctx.fillStyle = '#fff';
-        const x = i * barWidth;
-        ctx.fillRect(x, canvas.height - height, barWidth - 1, height);
+        const xLeft = (canvas.width / 2) - ((i + 1) * barWidth);
+        const xRight = (canvas.width / 2) + (i * barWidth);
+        ctx.fillRect(x$1, canvas.height - height, 1, height * 1.5);
+        ctx.fillRect(xRight, canvas.height - height, barWidth - 1, height);
       }
 
-      if (Math.random() < 0.005 && glitchCooldown <= 0) {
-        topText.textContent = topText.textContent === '0' ? 'Ø' : '0';
-        bottomText.textContent = bottomText.textContent === 'CROSS' ? 'CRØSS' : 'CROSS';
-        glitchCooldown = 30;
-      }
+      
 
       if (glitchCooldown > 0) glitchCooldown--;
     }
@@ -290,9 +288,11 @@
       killBuffer += e.key.toLowerCase();
       if (killBuffer.length > 10) killBuffer = killBuffer.slice(-10);
       if (killBuffer.includes('0x')) {
-        document.body.style.filter = 'invert(1) hue-rotate(180deg) saturate(3)';
-        document.body.classList.add('crt');
-        canvas.style.filter = 'contrast(5) blur(2px)';
+        document.body.classList.toggle('kill-mode');
+        canvas.style.filter = document.body.classList.contains('kill-mode') ? 'contrast(5) blur(2px)' : 'none';
+        document.body.style.filter = document.body.classList.contains('kill-mode') ? 'invert(1) hue-rotate(180deg) saturate(3)' : 'none';
+        document.body.classList.toggle('crt', document.body.classList.contains('kill-mode'));
+      }
       }
     });
 
