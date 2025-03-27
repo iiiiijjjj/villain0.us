@@ -65,14 +65,6 @@
       z-index: 10;
     }
 
-    a.line:first-child {
-      text-shadow: 0 0 10px #fff;
-    }
-
-    .line {
-      margin: 0.1em;
-    }
-
     .play-btn {
       margin-top: 1.5rem;
       background: none;
@@ -80,11 +72,10 @@
       cursor: pointer;
       color: inherit;
       font-family: 'Orbitron', sans-serif;
-      font-size: 10rem;
+      font-size: 8rem;
       position: relative;
       animation: glow-pulse 1s infinite alternate;
       z-index: 10;
-      transition: text-shadow 0.2s ease;
     }
 
     #track-name {
@@ -131,7 +122,7 @@
 </head>
 <body>
   <a href="https://open.spotify.com/artist/270SgoQaguqwQT9OLHYRrx" target="_blank" class="line" id="topText">0</a>
-  <a href="https://open.spotify.com/artist/270SgoQaguqwQT9OLHYRrx" target="_blank" class="line" id="bottomText">CROSS</a>
+  <a href="https://open.spotify.com/artist/270SgoQaguqwQT9OLHYRrx" target="_blank" class="line" id="bottomText">CR0SS</a>
 
   <button class="play-btn" id="playBtn">𖦤</button>
   <div id="track-name"></div>
@@ -141,191 +132,164 @@
   <canvas id="particleCanvas"></canvas>
 
   <script>
-window.addEventListener('DOMContentLoaded', () => {
-    const tracks = [
-  { src: 'incredible.mp3', name: 'INCREDIBLE' },
-  { src: 'heavenearth.mp3', name: 'HEAVENEARTH' },
-  { src: 'ollie.mp3', name: 'OLLIE' }
-];
+    window.addEventListener('DOMContentLoaded', () => {
+      const tracks = [
+        { src: 'incredible.mp3', name: 'INCREDIBLE' },
+        { src: 'heavenearth.mp3', name: 'HEAVENEARTH' },
+        { src: 'ollie.mp3', name: 'OLLIE' }
+      ];
 
-    function shuffle(array) {
-      for (let i = array.length - 1; i > 0; i--) {
-        const j = Math.floor(Math.random() * (i + 1));
-        [array[i], array[j]] = [array[j], array[i]];
-      }
-      return array;
-    }
-
-    let shuffled = shuffle([...tracks]);
-    const audio = document.getElementById('audio');
-    const crackle = document.getElementById('crackle');
-    const playBtn = document.getElementById('playBtn');
-    const trackNameDisplay = document.getElementById('track-name');
-    const canvas = document.getElementById('visualizer');
-    const ctx = canvas.getContext('2d');
-    const particleCanvas = document.getElementById('particleCanvas');
-    const particleCtx = particleCanvas.getContext('2d');
-    const topText = document.getElementById('topText');
-    const bottomText = document.getElementById('bottomText');
-
-    let isPlaying = false;
-    let currentIndex = 0;
-    let audioContext, source, analyser, dataArray, bufferLength;
-    let glitchCooldown = 0;
-    let killBuffer = '';
-
-    audio.src = shuffled[currentIndex].src;
-
-    function setupVisualizer() {
-      audioContext = new (window.AudioContext || window.webkitAudioContext)();
-      source = audioContext.createMediaElementSource(audio);
-      analyser = audioContext.createAnalyser();
-      source.connect(analyser);
-      analyser.connect(audioContext.destination);
-      analyser.fftSize = 256;
-      bufferLength = analyser.frequencyBinCount;
-      dataArray = new Uint8Array(bufferLength);
-      draw();
-      animateParticles();
-    }
-
-    function draw() {
-      requestAnimationFrame(draw);
-      analyser.getByteFrequencyData(dataArray);
-      ctx.clearRect(0, 0, canvas.width, canvas.height);
-      const barWidth = canvas.width / bufferLength;
-      const bass = dataArray.slice(0, 10).reduce((a, b) => a + b, 0) / 10;
-
-      playBtn.style.textShadow = `0 0 ${bass / 4}px #fff, 0 0 ${bass / 2}px #fff`;
-
-      if (bass > 200) {
-        document.body.classList.add('crt');
-      } else {
-        document.body.classList.remove('crt');
+      function shuffle(array) {
+        for (let i = array.length - 1; i > 0; i--) {
+          const j = Math.floor(Math.random() * (i + 1));
+          [array[i], array[j]] = [array[j], array[i]];
+        }
+        return array;
       }
 
-      for (let i = 0; i < bufferLength / 2; i++) {
-        const height = dataArray[i] * 2;
-        ctx.fillStyle = '#fff';
-        const xLeft = (canvas.width / 2) - ((i + 1) * barWidth);
-        const xRight = (canvas.width / 2) + (i * barWidth);
-        ctx.fillRect(x$1, canvas.height - height, 1, height * 1.5);
-        ctx.fillRect(xRight, canvas.height - height, barWidth - 1, height);
-      }
+      const shuffled = shuffle([...tracks]);
+      const audio = document.getElementById('audio');
+      const crackle = document.getElementById('crackle');
+      const playBtn = document.getElementById('playBtn');
+      const trackNameDisplay = document.getElementById('track-name');
+      const canvas = document.getElementById('visualizer');
+      const ctx = canvas.getContext('2d');
+      const particleCanvas = document.getElementById('particleCanvas');
+      const particleCtx = particleCanvas.getContext('2d');
 
-      
+      let isPlaying = false;
+      let currentIndex = 0;
+      let audioContext, source, analyser, dataArray, bufferLength;
+      let killBuffer = '';
 
-      if (glitchCooldown > 0) glitchCooldown--;
-    }
-
-    const particles = Array.from({ length: 1000 }, () => ({
-      x: Math.random() * window.innerWidth,
-      y: Math.random() * window.innerHeight,
-      symbol: Math.random() > 0.5 ? '0' : 'X',
-      speed: Math.random() * 0.5 + 0.2
-    }));
-
-    function animateParticles() {
-      requestAnimationFrame(animateParticles);
-      analyser.getByteFrequencyData(dataArray);
-      let bassAvg = dataArray.slice(0, 10).reduce((a, b) => a + b, 0) / 10;
-
-      particleCtx.clearRect(0, 0, particleCanvas.width, particleCanvas.height);
-      particleCtx.font = '16px Orbitron';
-      particleCtx.fillStyle = '#fff';
-      particles.forEach(p => {
-        p.y += (p.speed + bassAvg / 200);
-        if (p.y > particleCanvas.height) p.y = 0;
-        particleCtx.fillText(p.symbol, p.x, p.y);
-      });
-    }
-
-    audio.addEventListener('ended', () => {
-      if (!audioContext) return;
-      audioContext.resume().then(() => {
-        crackle.play().catch(() => {
-          nextTrack();
-        });
-      });
-      crackle.onended = () => {
-        nextTrack();
-      };
-    });
-
-    function nextTrack() {
-      currentIndex = (currentIndex + 1) % shuffled.length;
       audio.src = shuffled[currentIndex].src;
-      audio.play();
-      displayTrackName(shuffled[currentIndex].name);
-      crackle.onended = null;
-    }
 
-    playBtn.addEventListener('click', async () => {
-  try {
-    console.log('Play button clicked');
-    if (!audioContext) {
-      console.log('No audioContext, setting up visualizer');
-      setupVisualizer();
-    }
-    if (audioContext.state !== 'running') {
-      await audioContext.resume();
-      console.log('AudioContext resumed');
-    }
-    if (!isPlaying) {
-      await audio.play();
-      console.log('Audio playback started');
-      document.body.classList.add('playing');
-      displayTrackName(shuffled[currentIndex].name);
-      isPlaying = true;
-    } else {
-      audio.pause();
-      console.log('Audio paused');
-      document.body.classList.remove('playing');
-      isPlaying = false;
-    }
-    alert('Failed to start audio. Try clicking again or check browser permissions.');
-  }
-});
-
-    function displayTrackName(name) {
-      trackNameDisplay.textContent = name;
-      trackNameDisplay.style.display = 'block';
-      setTimeout(() => trackNameDisplay.style.display = 'none', 3000);
-    }
-
-    window.addEventListener('keydown', (e) => {
-      killBuffer += e.key.toLowerCase();
-      if (killBuffer.length > 10) killBuffer = killBuffer.slice(-10);
-      if (killBuffer.includes('0x')) {
-        document.body.classList.toggle('kill-mode');
-        canvas.style.filter = document.body.classList.contains('kill-mode') ? 'contrast(5) blur(2px)' : 'none';
-        document.body.style.filter = document.body.classList.contains('kill-mode') ? 'invert(1) hue-rotate(180deg) saturate(3)' : 'none';
-        document.body.classList.toggle('crt', document.body.classList.contains('kill-mode'));
+      function setupVisualizer() {
+        audioContext = new (window.AudioContext || window.webkitAudioContext)();
+        source = audioContext.createMediaElementSource(audio);
+        analyser = audioContext.createAnalyser();
+        source.connect(analyser);
+        analyser.connect(audioContext.destination);
+        analyser.fftSize = 256;
+        bufferLength = analyser.frequencyBinCount;
+        dataArray = new Uint8Array(bufferLength);
+        draw();
+        animateParticles();
       }
+
+      function draw() {
+        requestAnimationFrame(draw);
+        analyser.getByteFrequencyData(dataArray);
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        const barWidth = canvas.width / bufferLength;
+        const bass = dataArray.slice(0, 10).reduce((a, b) => a + b, 0) / 10;
+
+        playBtn.style.textShadow = `0 0 ${bass / 4}px #fff, 0 0 ${bass / 2}px #fff`;
+
+        if (bass > 200) {
+          document.body.classList.add('crt');
+        } else {
+          document.body.classList.remove('crt');
+        }
+
+        for (let i = 0; i < bufferLength / 2; i++) {
+          const height = dataArray[i] * 2;
+          ctx.fillStyle = 'rgba(255,255,255,0.75)';
+          const xLeft = (canvas.width / 2) - ((i + 1) * barWidth);
+          const xRight = (canvas.width / 2) + (i * barWidth);
+          ctx.fillRect(xLeft, canvas.height - height, 1, height * 1.5);
+          ctx.fillRect(xRight, canvas.height - height, 1, height * 1.5);
+        }
       }
-    });
 
-    function resizeCanvas() {
-      canvas.width = particleCanvas.width = window.innerWidth;
-      canvas.height = particleCanvas.height = window.innerHeight;
-    }
+      const particles = Array.from({ length: 1500 }, () => ({
+        x: Math.random() * window.innerWidth,
+        y: Math.random() * window.innerHeight,
+        symbol: Math.random() > 0.5 ? '0' : 'X',
+        speed: Math.random() * 0.5 + 0.2
+      }));
 
-    window.addEventListener('resize', resizeCanvas);
-    resizeCanvas();
+      function animateParticles() {
+        requestAnimationFrame(animateParticles);
+        analyser.getByteFrequencyData(dataArray);
+        let bassAvg = dataArray.slice(0, 10).reduce((a, b) => a + b, 0) / 10;
 
-    window.addEventListener('load', () => {
-      if (!audioContext) setupVisualizer();
-      audioContext?.resume().then(() => {
-        audio.play().then(() => {
-          document.body.classList.add('playing');
-          displayTrackName(shuffled[currentIndex].name);
-          isPlaying = true;
-        }).catch(() => {
-          console.log('Autoplay blocked. Waiting for user interaction.');
+        particleCtx.clearRect(0, 0, particleCanvas.width, particleCanvas.height);
+        particleCtx.font = '10px Orbitron';
+        particleCtx.fillStyle = '#fff';
+        particles.forEach(p => {
+          p.y += (p.speed + bassAvg / 200);
+          if (p.y > particleCanvas.height) p.y = 0;
+          particleCtx.fillText(p.symbol, p.x, p.y);
         });
+      }
+
+      audio.addEventListener('ended', () => {
+        if (!audioContext) return;
+        audioContext.resume().then(() => {
+          crackle.play().catch(() => {
+            nextTrack();
+          });
+        });
+        crackle.onended = () => {
+          nextTrack();
+        };
       });
+
+      function nextTrack() {
+        currentIndex = (currentIndex + 1) % shuffled.length;
+        audio.src = shuffled[currentIndex].src;
+        audio.play();
+        displayTrackName(shuffled[currentIndex].name);
+        crackle.onended = null;
+      }
+
+      playBtn.addEventListener('click', async () => {
+        try {
+          if (!audioContext) setupVisualizer();
+          await audioContext.resume();
+
+          if (!isPlaying) {
+            await audio.play();
+            document.body.classList.add('playing');
+            displayTrackName(shuffled[currentIndex].name);
+            isPlaying = true;
+          } else {
+            audio.pause();
+            document.body.classList.remove('playing');
+            isPlaying = false;
+          }
+        } catch (err) {
+          console.error("Audio play failed:", err);
+          alert('Failed to start audio. Try clicking again or check browser permissions.');
+        }
+      });
+
+      function displayTrackName(name) {
+        trackNameDisplay.textContent = name;
+        trackNameDisplay.style.display = 'block';
+        setTimeout(() => trackNameDisplay.style.display = 'none', 3000);
+      }
+
+      window.addEventListener('keydown', (e) => {
+        killBuffer += e.key.toLowerCase();
+        if (killBuffer.length > 10) killBuffer = killBuffer.slice(-10);
+        if (killBuffer.includes('0x')) {
+          document.body.classList.toggle('kill-mode');
+          canvas.style.filter = document.body.classList.contains('kill-mode') ? 'contrast(5) blur(2px)' : 'none';
+          document.body.style.filter = document.body.classList.contains('kill-mode') ? 'invert(1) hue-rotate(180deg) saturate(3)' : 'none';
+          document.body.classList.toggle('crt', document.body.classList.contains('kill-mode'));
+        }
+      });
+
+      function resizeCanvas() {
+        canvas.width = particleCanvas.width = window.innerWidth;
+        canvas.height = particleCanvas.height = window.innerHeight;
+      }
+
+      window.addEventListener('resize', resizeCanvas);
+      resizeCanvas();
     });
-  });
-</script>
+  </script>
 </body>
 </html>
