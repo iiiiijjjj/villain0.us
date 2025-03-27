@@ -1,25 +1,25 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <!-- Meta Pixel Code -->
-<script>
-  !function(f,b,e,v,n,t,s)
-  {if(f.fbq)return;n=f.fbq=function(){n.callMethod?
-  n.callMethod.apply(n,arguments):n.queue.push(arguments)};
-  if(!f._fbq)f._fbq=n;n.push=n;n.loaded=!0;n.version='2.0';
-  n.queue=[];t=b.createElement(e);t.async=!0;
-  t.src=v;s=b.getElementsByTagName(e)[0];
-  s.parentNode.insertBefore(t,s)}(window, document,'script',
-  'https://connect.facebook.net/en_US/fbevents.js');
-  
-  fbq('init', '1335226287780423'); // Replace with your Pixel ID if needed
-  fbq('track', 'PageView');
-</script>
-<noscript>
-  <img height="1" width="1" style="display:none"
-  src="https://www.facebook.com/tr?id=1335226287780423&ev=PageView&noscript=1"/>
-</noscript>
-<!-- End Meta Pixel Code -->
+  <!-- Meta Pixel Code -->
+  <script>
+    !function(f,b,e,v,n,t,s)
+    {if(f.fbq)return;n=f.fbq=function(){n.callMethod?
+    n.callMethod.apply(n,arguments):n.queue.push(arguments)};
+    if(!f._fbq)f._fbq=n;n.push=n;n.loaded=!0;n.version='2.0';
+    n.queue=[];t=b.createElement(e);t.async=!0;
+    t.src=v;s=b.getElementsByTagName(e)[0];
+    s.parentNode.insertBefore(t,s)}(window, document,'script',
+    'https://connect.facebook.net/en_US/fbevents.js');
+    
+    fbq('init', '1335226287780423');
+    fbq('track', 'PageView');
+  </script>
+  <noscript>
+    <img height="1" width="1" style="display:none"
+    src="https://www.facebook.com/tr?id=1335226287780423&ev=PageView&noscript=1"/>
+  </noscript>
+  <!-- End Meta Pixel Code -->
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>0cross - ollie</title>
@@ -125,6 +125,17 @@
       width: 300px;
       height: 80px;
       transition: all 0.5s ease;
+      position: relative;
+    }
+    #spotify-frame-wrapper .click-catcher {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      z-index: 2;
+      background: transparent;
+      cursor: pointer;
     }
     body.playing #spotify-frame-wrapper {
       width: 80px;
@@ -136,6 +147,7 @@
     #spotify-frame-wrapper iframe {
       width: 100%;
       height: 100%;
+      z-index: 1;
     }
   </style>
 </head>
@@ -148,6 +160,7 @@
   <div id="track-name">OLLIE</div>
 
   <div id="spotify-frame-wrapper">
+    <div class="click-catcher" id="spotifyCatcher"></div>
     <iframe style="border-radius:12px" src="https://open.spotify.com/embed/track/7DnHJ4rI5qkHF42ALGCMP8?utm_source=generator&theme=0" frameBorder="0" allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture" loading="lazy"></iframe>
   </div>
 
@@ -165,6 +178,7 @@
       const ctx = canvas.getContext('2d');
       const particleCanvas = document.getElementById('particleCanvas');
       const particleCtx = particleCanvas.getContext('2d');
+      const spotifyCatcher = document.getElementById('spotifyCatcher');
 
       let isPlaying = false;
       let audioContext, source, analyser, dataArray, bufferLength;
@@ -200,7 +214,7 @@
         for (let i = 0; i < bufferLength / 2; i++) {
           const height = dataArray[i] * 2;
           ctx.fillStyle = 'rgba(255,255,255,0.75)';
-          const xLeft = (canvas.width / 2) - ((i + 1) * barWidth) + 4; // Nudge right 4px
+          const xLeft = (canvas.width / 2) - ((i + 1) * barWidth) + 4;
           const xRight = (canvas.width / 2) + (i * barWidth) + 4;
           ctx.fillRect(xLeft, canvas.height - height, 1, height * 1.5);
           ctx.fillRect(xRight, canvas.height - height, 1, height * 1.5);
@@ -246,6 +260,7 @@
           audio.play();
           document.body.classList.add('playing');
           playLabel.textContent = 'PAUSE';
+          fbq('trackCustom', 'PlayClicked');
         } else {
           audio.pause();
           document.body.classList.remove('playing');
@@ -258,12 +273,17 @@
       trackName.addEventListener('click', togglePlay);
       playLabel.addEventListener('click', togglePlay);
 
+      spotifyCatcher.addEventListener('click', () => {
+        fbq('trackCustom', 'SpotifyEmbedClicked');
+        spotifyCatcher.style.display = 'none';
+      });
+
       audio.addEventListener('ended', () => {
         document.body.classList.add('kill-mode');
         canvas.style.filter = 'contrast(5) blur(2px)';
         document.body.style.filter = 'invert(1) hue-rotate(180deg) saturate(3)';
         reverseParticles = true;
-        playLabel.textContent = 'ADD TO SPOTIFY';
+        playLabel.innerHTML = '<a href="https://open.spotify.com/track/7DnHJ4rI5qkHF42ALGCMP8?go=1&sp_cid=0a023eb0054fd2e8de0984a14eaa6893&utm_source=embed_player_p&utm_medium=desktop&nd=1&dlsi=476d7788299649f2" target="_blank" style="color: inherit; text-decoration: none;">ADD TO SPOTIFY</a>';
       });
 
       window.addEventListener('keydown', (e) => {
