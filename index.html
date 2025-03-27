@@ -79,10 +79,10 @@
 
     #visualizer {
       position: fixed;
-      bottom: 0;
+      top: 0;
       left: 0;
       width: 100vw;
-      height: 30vh;
+      height: 100vh;
       z-index: 1;
       background: transparent;
       display: none;
@@ -123,7 +123,6 @@
       { src: 'zerocross - ollie (mixed).mp3', name: 'OLLIE' }
     ];
 
-    // Shuffle the tracks array
     function shuffle(array) {
       for (let i = array.length - 1; i > 0; i--) {
         const j = Math.floor(Math.random() * (i + 1));
@@ -167,7 +166,7 @@
       ctx.clearRect(0, 0, canvas.width, canvas.height);
       const barWidth = (canvas.width / bufferLength) / 2;
       for (let i = 0; i < bufferLength / 2; i++) {
-        const height = dataArray[i];
+        const height = dataArray[i] * 2;
         ctx.fillStyle = '#fff';
         const xLeft = (canvas.width / 2) - ((i + 1) * barWidth);
         const xRight = (canvas.width / 2) + (i * barWidth);
@@ -224,14 +223,12 @@
 
     function resizeCanvas() {
       canvas.width = particleCanvas.width = window.innerWidth;
-      canvas.height = window.innerHeight;
-      particleCanvas.height = window.innerHeight;
+      canvas.height = particleCanvas.height = window.innerHeight;
     }
 
     window.addEventListener('resize', resizeCanvas);
     resizeCanvas();
 
-    // Autoplay on load
     window.addEventListener('load', () => {
       playBtn.click();
     });
