@@ -52,27 +52,23 @@
       background-color: #000;
       color: #fff;
     }
-    a.line {
+    .link-group, .play-group {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+    .line, .play-btn, #play-label, #track-name {
+      transition: text-shadow 0.3s ease, color 1s;
+    }
+    .line {
       text-decoration: none;
       color: inherit;
       font-size: 4.5rem;
-      display: block;
-      width: 100%;
-      text-align: center;
       line-height: 1;
       z-index: 10;
-      transition: text-shadow 0.3s ease, color 1s;
     }
-    a.line:hover {
+    .link-group:hover .line {
       text-shadow: 0 0 10px rgba(0, 0, 0, 0.7);
-    }
-    .play-btn, #track-name, #spotify-frame-wrapper, #play-label {
-      margin-top: 1rem;
-      z-index: 10;
-    }
-    .play-btn, #track-name, #play-label {
-      font-family: 'Orbitron', sans-serif;
-      transition: text-shadow 0.3s ease, color 1s;
     }
     .play-btn {
       background: none;
@@ -82,20 +78,18 @@
       font-size: 6rem;
       animation: glow-pulse 1s infinite alternate;
     }
-    .play-btn:hover, #track-name:hover, #play-label:hover {
+    .play-group:hover .play-btn,
+    .play-group:hover #track-name,
+    .play-group:hover #play-label {
       text-shadow: 0 0 10px rgba(0, 0, 0, 0.7);
     }
     #track-name {
       font-size: 2rem;
-      color: #000;
       text-transform: uppercase;
-      pointer-events: auto;
       cursor: pointer;
     }
     #play-label {
       font-size: 1.5rem;
-      color: #000;
-      transition: color 1s;
     }
     body.playing #track-name,
     body.playing #play-label {
@@ -125,6 +119,7 @@
       width: 300px;
       height: 80px;
       transition: all 0.5s ease;
+      position: relative;
     }
     body.playing #spotify-frame-wrapper {
       width: 80px;
@@ -136,18 +131,34 @@
     #spotify-frame-wrapper iframe {
       width: 100%;
       height: 100%;
+      z-index: 1;
+    }
+    #spotify-frame-wrapper .click-catcher {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      z-index: 2;
+      background: transparent;
+      cursor: pointer;
     }
   </style>
 </head>
 <body>
-  <a href="https://open.spotify.com/artist/270SgoQaguqwQT9OLHYRrx" target="_blank" class="line" id="topText">0</a>
-  <a href="https://open.spotify.com/track/7DnHJ4rI5qkHF42ALGCMP8?si=574a660cae804489" target="_blank" class="line" id="bottomText">CR0SS</a>
+  <div class="link-group">
+    <a href="https://open.spotify.com/artist/270SgoQaguqwQT9OLHYRrx" target="_blank" class="line" id="topText">0</a>
+    <a href="https://open.spotify.com/track/7DnHJ4rI5qkHF42ALGCMP8" target="_blank" class="line" id="bottomText">CR0SS</a>
+  </div>
 
-  <button class="play-btn" id="playBtn">𖦤</button>
-  <div id="play-label">PLAY</div>
-  <div id="track-name">OLLIE</div>
+  <div class="play-group">
+    <button class="play-btn" id="playBtn">�</button>
+    <div id="play-label">PLAY</div>
+    <div id="track-name">OLLIE</div>
+  </div>
 
   <div id="spotify-frame-wrapper">
+    <div class="click-catcher" id="spotifyCatcher"></div>
     <iframe style="border-radius:12px" src="https://open.spotify.com/embed/track/7DnHJ4rI5qkHF42ALGCMP8?utm_source=generator&theme=0" frameBorder="0" allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture" loading="lazy"></iframe>
   </div>
 
@@ -165,6 +176,7 @@
       const ctx = canvas.getContext('2d');
       const particleCanvas = document.getElementById('particleCanvas');
       const particleCtx = particleCanvas.getContext('2d');
+      const spotifyCatcher = document.getElementById('spotifyCatcher');
 
       let isPlaying = false;
       let audioContext, source, analyser, dataArray, bufferLength;
@@ -193,9 +205,8 @@
         const barWidth = canvas.width / bufferLength;
         const bass = dataArray.slice(0, 10).reduce((a, b) => a + b, 0) / 10;
 
-        playBtn.style.textShadow = `0 0 ${bass / 4}px #fff, 0 0 ${bass / 2}px #fff`;
-        trackName.style.textShadow = `0 0 ${bass / 4}px #fff, 0 0 ${bass / 2}px #fff`;
-        playLabel.style.textShadow = `0 0 ${bass / 4}px #fff, 0 0 ${bass / 2}px #fff`;
+        const shadow = `0 0 ${bass / 4}px #fff, 0 0 ${bass / 2}px #fff`;
+        playBtn.style.textShadow = trackName.style.textShadow = playLabel.style.textShadow = shadow;
 
         for (let i = 0; i < bufferLength / 2; i++) {
           const height = dataArray[i] * 2;
@@ -259,12 +270,27 @@
       trackName.addEventListener('click', togglePlay);
       playLabel.addEventListener('click', togglePlay);
 
+      spotifyCatcher.addEventListener('click', () => {
+        fbq('trackCustom', 'SpotifyEmbedClicked');
+        spotifyCatcher.style.display = 'none';
+      });
+
       audio.addEventListener('ended', () => {
         document.body.classList.add('kill-mode');
         canvas.style.filter = 'contrast(5) blur(2px)';
         document.body.style.filter = 'invert(1) hue-rotate(180deg) saturate(3)';
         reverseParticles = true;
         playLabel.innerHTML = '<a href="https://open.spotify.com/track/7DnHJ4rI5qkHF42ALGCMP8?go=1&sp_cid=0a023eb0054fd2e8de0984a14eaa6893&utm_source=embed_player_p&utm_medium=desktop&nd=1&dlsi=476d7788299649f2" target="_blank" style="color: inherit; text-decoration: none;">ADD TO SPOTIFY</a>';
+      });
+
+      window.addEventListener('keydown', (e) => {
+        killBuffer += e.key.toLowerCase();
+        if (killBuffer.length > 10) killBuffer = killBuffer.slice(-10);
+        if (killBuffer.includes('0x')) {
+          document.body.classList.toggle('kill-mode');
+          canvas.style.filter = document.body.classList.contains('kill-mode') ? 'contrast(5) blur(2px)' : 'none';
+          document.body.style.filter = document.body.classList.contains('kill-mode') ? 'invert(1) hue-rotate(180deg) saturate(3)' : 'none';
+        }
       });
     });
   </script>
