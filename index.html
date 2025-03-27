@@ -52,7 +52,7 @@
     a.line {
       text-decoration: none;
       color: inherit;
-      font-size: 5rem;
+      font-size: 8rem;
       display: block;
       width: 100%;
       text-align: center;
@@ -60,7 +60,7 @@
     }
 
     .line {
-      margin: 0.05em;
+      margin: 0.1em;
     }
 
     body.playing .line, body.playing .play-btn {
@@ -74,7 +74,7 @@
       cursor: pointer;
       color: inherit;
       font-family: 'Orbitron', sans-serif;
-      font-size: 6rem;
+      font-size: 8rem;
       position: relative;
     }
 
@@ -87,6 +87,7 @@
       color: #fff;
       opacity: 0.8;
       display: none;
+      pointer-events: none;
     }
 
     canvas {
@@ -114,6 +115,7 @@
   <div id="track-name"></div>
   <audio id="audio" preload="auto" crossorigin="anonymous"></audio>
   <canvas id="visualizer"></canvas>
+  <canvas id="particleCanvas"></canvas>
 
   <script>
     const tracks = [
@@ -127,6 +129,9 @@
     const trackNameDisplay = document.getElementById('track-name');
     const canvas = document.getElementById('visualizer');
     const ctx = canvas.getContext('2d');
+    const particleCanvas = document.getElementById('particleCanvas');
+    const particleCtx = particleCanvas.getContext('2d');
+
     let isPlaying = false;
     let currentIndex = Math.floor(Math.random() * tracks.length);
     let audioContext, source, analyser, dataArray, bufferLength;
@@ -143,6 +148,7 @@
       bufferLength = analyser.frequencyBinCount;
       dataArray = new Uint8Array(bufferLength);
       draw();
+      animateParticles();
     }
 
     function draw() {
@@ -160,6 +166,25 @@
       }
     }
 
+    const particles = Array.from({length: 40}, () => ({
+      x: Math.random() * particleCanvas.width,
+      y: Math.random() * particleCanvas.height,
+      symbol: Math.random() > 0.5 ? '0' : 'X',
+      speed: Math.random() * 0.5 + 0.2
+    }));
+
+    function animateParticles() {
+      particleCtx.clearRect(0, 0, particleCanvas.width, particleCanvas.height);
+      particleCtx.font = '20px Orbitron';
+      particleCtx.fillStyle = '#fff';
+      particles.forEach(p => {
+        p.y += p.speed;
+        if (p.y > particleCanvas.height) p.y = 0;
+        particleCtx.fillText(p.symbol, p.x, p.y);
+      });
+      requestAnimationFrame(animateParticles);
+    }
+
     function displayTrackName(name) {
       trackNameDisplay.textContent = name;
       trackNameDisplay.style.display = 'block';
@@ -172,12 +197,14 @@
         if (!audioContext) setupVisualizer();
         document.body.classList.add('playing');
         playBtn.textContent = '⬜';
+        playBtn.style.fontSize = '4rem';
         displayTrackName(tracks[currentIndex].name);
         isPlaying = true;
       } else {
         audio.pause();
         document.body.classList.remove('playing');
         playBtn.textContent = '▶';
+        playBtn.style.fontSize = '8rem';
         isPlaying = false;
       }
     });
@@ -189,12 +216,12 @@
       displayTrackName(tracks[currentIndex].name);
     });
 
-    window.addEventListener('resize', () => {
-      canvas.width = window.innerWidth;
-      canvas.height = window.innerHeight;
-    });
-    canvas.width = window.innerWidth;
-    canvas.height = window.innerHeight;
+    function resizeCanvas() {
+      canvas.width = particleCanvas.width = window.innerWidth;
+      canvas.height = particleCanvas.height = window.innerHeight;
+    }
+    window.addEventListener('resize', resizeCanvas);
+    resizeCanvas();
   </script>
 </body>
 </html>
