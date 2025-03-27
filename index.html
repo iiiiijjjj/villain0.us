@@ -76,13 +76,25 @@
       animation: glow-pulse 2s infinite alternate;
     }
 
-    canvas {
+    #visualizer {
       position: fixed;
       top: 0;
       left: 0;
       width: 100vw;
       height: 100vh;
-      z-index: -1;
+      z-index: 1;
+      background: transparent;
+      display: none;
+      pointer-events: none;
+    }
+
+    #particleCanvas {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100vw;
+      height: 100vh;
+      z-index: 0;
       background: #000;
       display: none;
     }
@@ -125,7 +137,6 @@
     audio.src = tracks[currentIndex].src;
 
     function setupVisualizer() {
-      console.log('Setting up visualizer...');
       audioContext = new (window.AudioContext || window.webkitAudioContext)();
       source = audioContext.createMediaElementSource(audio);
       analyser = audioContext.createAnalyser();
