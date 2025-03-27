@@ -10,19 +10,27 @@
   <style>
     @keyframes glitch {
       0% { transform: none; opacity: 1; }
-      20% { transform: translate(-1px, 1px); opacity: 0.9; }
-      40% { transform: translate(1px, -1px); opacity: 0.8; }
-      60% { transform: translate(-1px, 1px); opacity: 0.9; }
-      80% { transform: translate(1px, -1px); opacity: 1; }
+      15% { transform: translate(-2px, 2px); opacity: 0.7; }
+      30% { transform: translate(2px, -2px); opacity: 0.6; }
+      45% { transform: translate(-1px, 1px); opacity: 0.8; }
+      60% { transform: translate(1px, -1px); opacity: 0.5; }
+      75% { transform: translate(-3px, 0px); opacity: 0.9; }
+      90% { transform: translate(0px, 3px); opacity: 0.7; }
       100% { transform: none; opacity: 1; }
     }
 
     @keyframes glitch-hover {
-      0% { transform: none; }
-      25% { transform: translateX(-1px); }
-      50% { transform: translateX(1px); }
-      75% { transform: translateX(-1px); }
-      100% { transform: none; }
+      0% { opacity: 1; transform: none; }
+      10% { opacity: 0.1; transform: translate(-1px, 0); }
+      20% { opacity: 0.9; transform: translate(1px, -1px); }
+      30% { opacity: 0.2; transform: translate(-2px, 2px); }
+      40% { opacity: 0.8; transform: translate(2px, -2px); }
+      50% { opacity: 0.1; transform: translate(-1px, 1px); }
+      60% { opacity: 1; transform: translate(0); }
+      70% { opacity: 0.3; transform: translate(1px, 1px); }
+      80% { opacity: 0.6; transform: translate(-1px, -1px); }
+      90% { opacity: 0.2; transform: translate(2px, 2px); }
+      100% { opacity: 1; transform: none; }
     }
 
     body {
@@ -37,6 +45,12 @@
       font-family: 'Orbitron', sans-serif;
       font-size: 3rem;
       letter-spacing: 2px;
+      transition: background 0.5s, color 0.5s;
+    }
+
+    body.playing {
+      background-color: #000;
+      color: #fff;
     }
 
     a.line {
@@ -54,14 +68,14 @@
       background: none;
       border: none;
       cursor: pointer;
-      color: #000;
+      color: inherit;
       font-family: 'Orbitron', sans-serif;
-      animation: glitch 2s infinite;
+      animation: glitch 1s infinite;
       transition: transform 0.2s;
     }
 
     .play-btn:hover {
-      animation: glitch-hover 0.3s infinite;
+      animation: glitch-hover 0.6s infinite;
     }
 
     .play-style {
@@ -69,7 +83,21 @@
     }
 
     .pause-style {
-      font-size: 2rem;
+      font-size: 3rem;
+    }
+
+    canvas {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100vw;
+      height: 100vh;
+      z-index: -1;
+      display: none;
+    }
+
+    body.playing canvas {
+      display: block;
     }
   </style>
 </head>
@@ -80,7 +108,8 @@
   <a href="https://open.spotify.com/artist/2pJH9JdXVVkUZRDK7AANMe" target="_blank" class="line">WRAITH</a>
 
   <button class="play-btn play-style" id="playBtn">▶</button>
-  <audio id="audio" preload="auto"></audio>
+  <audio id="audio" preload="auto" crossorigin="anonymous"></audio>
+  <canvas id="visualizer"></canvas>
 
   <script>
     const tracks = [
@@ -91,17 +120,47 @@
 
     const audio = document.getElementById('audio');
     const playBtn = document.getElementById('playBtn');
+    const canvas = document.getElementById('visualizer');
+    const ctx = canvas.getContext('2d');
     let isPlaying = false;
     let currentIndex = Math.floor(Math.random() * tracks.length);
+    let audioContext, source, analyser, dataArray, bufferLength;
 
     audio.src = tracks[currentIndex];
+
+    function setupVisualizer() {
+      audioContext = new (window.AudioContext || window.webkitAudioContext)();
+      source = audioContext.createMediaElementSource(audio);
+      analyser = audioContext.createAnalyser();
+      source.connect(analyser);
+      analyser.connect(audioContext.destination);
+      analyser.fftSize = 256;
+      bufferLength = analyser.frequencyBinCount;
+      dataArray = new Uint8Array(bufferLength);
+      draw();
+    }
+
+    function draw() {
+      requestAnimationFrame(draw);
+      analyser.getByteFrequencyData(dataArray);
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      const barWidth = canvas.width / bufferLength;
+      for (let i = 0; i < bufferLength; i++) {
+        const height = dataArray[i];
+        const hue = i * 4;
+        ctx.fillStyle = `hsl(${hue}, 100%, 50%)`;
+        ctx.fillRect(i * barWidth, canvas.height - height, barWidth - 2, height);
+      }
+    }
 
     function playTrack(index, restart = true) {
       if (restart) {
         audio.src = tracks[index];
         audio.currentTime = 0;
       }
+      if (!audioContext) setupVisualizer();
       audio.play();
+      document.body.classList.add('playing');
       playBtn.textContent = '❚❚';
       playBtn.classList.remove('play-style');
       playBtn.classList.add('pause-style');
@@ -111,12 +170,15 @@
     playBtn.addEventListener('click', () => {
       if (!isPlaying) {
         audio.play();
+        if (!audioContext) setupVisualizer();
+        document.body.classList.add('playing');
         playBtn.textContent = '❚❚';
         playBtn.classList.remove('play-style');
         playBtn.classList.add('pause-style');
         isPlaying = true;
       } else {
         audio.pause();
+        document.body.classList.remove('playing');
         playBtn.textContent = '▶';
         playBtn.classList.remove('pause-style');
         playBtn.classList.add('play-style');
@@ -132,6 +194,13 @@
       currentIndex = nextIndex;
       playTrack(currentIndex);
     });
+
+    window.addEventListener('resize', () => {
+      canvas.width = window.innerWidth;
+      canvas.height = window.innerHeight;
+    });
+    canvas.width = window.innerWidth;
+    canvas.height = window.innerHeight;
   </script>
 </body>
 </html>
