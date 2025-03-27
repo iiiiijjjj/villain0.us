@@ -97,7 +97,7 @@
     </iframe>
   </div>
 
-  <audio id="audio" preload="auto" crossorigin="anonymous" src="zerocross - ollie (mixed).mp3"></audio>
+  <audio id="audio" preload="none" crossorigin="anonymous" src="zerocross - ollie (mixed).mp3"></audio>
 
   <script>
     const audio = document.getElementById('audio');
@@ -105,19 +105,21 @@
     const trackNameDisplay = document.getElementById('track-name');
     const spotifyWrap = document.getElementById('spotifyWrap');
     let isPlaying = false;
-    let audioContext;
-
-    async function initAudioContext() {
-      if (!audioContext) {
-        audioContext = new (window.AudioContext || window.webkitAudioContext)();
-        const source = audioContext.createMediaElementSource(audio);
-        source.connect(audioContext.destination);
-      }
-    }
+    let audioContext = null;
+    let hasConnected = false;
 
     async function togglePlayback() {
       try {
-        await initAudioContext();
+        if (!audioContext) {
+          audioContext = new (window.AudioContext || window.webkitAudioContext)();
+        }
+
+        if (!hasConnected) {
+          const source = audioContext.createMediaElementSource(audio);
+          source.connect(audioContext.destination);
+          hasConnected = true;
+        }
+
         if (audioContext.state === "suspended") {
           await audioContext.resume();
         }
