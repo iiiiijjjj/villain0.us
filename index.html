@@ -23,8 +23,8 @@
     }
 
     @keyframes glow-pulse {
-      0%, 100% { text-shadow: 0 0 20px #fff; }
-      50% { text-shadow: 0 0 50px #fff; }
+      0%, 100% { text-shadow: 0 0 15px #fff; }
+      50% { text-shadow: 0 0 40px #fff; }
     }
 
     body {
@@ -37,7 +37,7 @@
       background-color: #fff;
       color: #000;
       font-family: 'Orbitron', sans-serif;
-      font-size: 2rem;
+      font-size: 2.5rem;
       letter-spacing: 1px;
       transition: background 0.5s, color 0.5s;
       position: relative;
@@ -52,11 +52,12 @@
     a.line {
       text-decoration: none;
       color: inherit;
-      font-size: 4rem;
+      font-size: 4.5rem;
       display: block;
       width: 100%;
       text-align: center;
       line-height: 1;
+      animation: glow-pulse 2s infinite alternate;
     }
 
     .line {
@@ -64,7 +65,7 @@
     }
 
     body.playing .line, body.playing .play-btn {
-      animation: glitch-strobe 0.4s infinite, glow-pulse 2s infinite alternate;
+      animation: glitch-strobe 0.4s infinite, glow-pulse 1s infinite alternate;
     }
 
     .play-btn {
@@ -74,8 +75,9 @@
       cursor: pointer;
       color: inherit;
       font-family: 'Orbitron', sans-serif;
-      font-size: 3rem;
+      font-size: 3.5rem;
       position: relative;
+      animation: glow-pulse 2s infinite alternate;
     }
 
     #track-name {
@@ -90,6 +92,7 @@
       pointer-events: none;
       font-family: 'Orbitron', sans-serif;
       text-transform: uppercase;
+      animation: glow-pulse 2s infinite alternate;
     }
 
     canvas {
@@ -113,7 +116,7 @@
   <a href="https://open.spotify.com/artist/270SgoQaguqwQT9OLHYRrx" target="_blank" class="line">0</a>
   <a href="https://open.spotify.com/artist/270SgoQaguqwQT9OLHYRrx" target="_blank" class="line">CROSS</a>
 
-  <button class="play-btn" id="playBtn">▶</button>
+  <button class="play-btn" id="playBtn">▷</button>
   <div id="track-name"></div>
   <audio id="audio" preload="auto" crossorigin="anonymous"></audio>
   <canvas id="visualizer"></canvas>
@@ -187,11 +190,12 @@
       requestAnimationFrame(animateParticles);
     }
 
-    function displayTrackName(name) {
-      trackNameDisplay.textContent = name;
-      trackNameDisplay.style.display = 'block';
-      setTimeout(() => trackNameDisplay.style.display = 'none', 3000);
-    }
+    audio.addEventListener('ended', () => {
+      currentIndex = (currentIndex + 1) % tracks.length;
+      audio.src = tracks[currentIndex].src;
+      audio.play();
+      displayTrackName(tracks[currentIndex].name);
+    });
 
     playBtn.addEventListener('click', () => {
       if (!isPlaying) {
@@ -204,10 +208,16 @@
       } else {
         audio.pause();
         document.body.classList.remove('playing');
-        playBtn.textContent = '▶';
+        playBtn.textContent = '▷';
         isPlaying = false;
       }
     });
+
+    function displayTrackName(name) {
+      trackNameDisplay.textContent = name;
+      trackNameDisplay.style.display = 'block';
+      setTimeout(() => trackNameDisplay.style.display = 'none', 3000);
+    }
 
     function resizeCanvas() {
       canvas.width = particleCanvas.width = window.innerWidth;
