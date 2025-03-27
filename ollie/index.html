@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>OLLIE - 0CROSS</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@700&display=swap" rel="stylesheet">
+  <style>
+    body {
+      margin: 0;
+      padding: 0;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      background-color: #fff;
+      color: #000;
+      font-family: 'Orbitron', sans-serif;
+      font-size: 2rem;
+      text-align: center;
+      overflow: hidden;
+    }
+
+    .playing {
+      background-color: #000;
+      color: #fff;
+    }
+
+    .line {
+      text-decoration: none;
+      color: inherit;
+      font-size: 4rem;
+      display: block;
+    }
+
+    .play-btn {
+      margin-top: 1.5rem;
+      background: none;
+      border: none;
+      cursor: pointer;
+      color: inherit;
+      font-family: 'Orbitron', sans-serif;
+      font-size: 6rem;
+      animation: pulse 1s infinite alternate;
+    }
+
+    @keyframes pulse {
+      0% { text-shadow: 0 0 10px #fff; }
+      100% { text-shadow: 0 0 30px #fff; }
+    }
+
+    #track-name {
+      margin-top: 1rem;
+      font-size: 2rem;
+      color: #fff;
+      text-transform: uppercase;
+    }
+
+    iframe {
+      margin-top: 2rem;
+    }
+  </style>
+</head>
+<body>
+  <div class="line">0</div>
+  <div class="line">CR0SS</div>
+
+  <button class="play-btn" id="playBtn">𖦤</button>
+  <div id="track-name">OLLIE</div>
+
+  <iframe style="border-radius:12px" src="https://open.spotify.com/embed/album/2BneKwMX7HX7lKHAeDmPWK?utm_source=generator&theme=0" width="50%" height="152" frameBorder="0" allowfullscreen="" allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture" loading="lazy"></iframe>
+
+  <audio id="audio" preload="auto" crossorigin="anonymous" src="zerocross - ollie (mixed).mp3"></audio>
+
+  <script>
+    const audio = document.getElementById('audio');
+    const playBtn = document.getElementById('playBtn');
+    const trackNameDisplay = document.getElementById('track-name');
+    let isPlaying = false;
+    let audioContext;
+
+    playBtn.addEventListener('click', async () => {
+      try {
+        if (!audioContext) {
+          audioContext = new (window.AudioContext || window.webkitAudioContext)();
+          const source = audioContext.createMediaElementSource(audio);
+          source.connect(audioContext.destination);
+        }
+        await audioContext.resume();
+
+        if (!isPlaying) {
+          await audio.play();
+          document.body.classList.add('playing');
+          isPlaying = true;
+        } else {
+          audio.pause();
+          document.body.classList.remove('playing');
+          isPlaying = false;
+        }
+      } catch (err) {
+        console.error("Audio play failed:", err);
+      }
+    });
+  </script>
+</body>
+</html>
