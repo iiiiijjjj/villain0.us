@@ -58,8 +58,26 @@
       text-transform: uppercase;
     }
 
-    iframe {
+    .spotify-wrapper {
       margin-top: 2rem;
+      transition: all 0.4s ease;
+    }
+
+    .spotify-wrapper.playing {
+      width: 80px;
+      height: 80px;
+      overflow: hidden;
+      border-radius: 12px;
+      filter: brightness(1.2) contrast(1.1) grayscale(100%) drop-shadow(0 0 6px white);
+    }
+
+    iframe {
+      width: 250px;
+      height: 80px;
+      border: none;
+      border-radius: 6px;
+      filter: grayscale(100%) brightness(1.2) contrast(1.1) drop-shadow(0 0 6px white);
+      transition: all 0.4s ease;
     }
   </style>
 </head>
@@ -70,7 +88,13 @@
   <button class="play-btn" id="playBtn">𖦤</button>
   <div id="track-name">OLLIE</div>
 
-  <iframe style="border-radius:12px" src="https://open.spotify.com/embed/album/2BneKwMX7HX7lKHAeDmPWK?utm_source=generator&theme=0" width="50%" height="152" frameBorder="0" allowfullscreen="" allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture" loading="lazy"></iframe>
+  <div class="spotify-wrapper" id="spotifyWrap">
+    <iframe 
+      src="https://open.spotify.com/embed/album/2BneKwMX7HX7lKHAeDmPWK?utm_source=generator&theme=0" 
+      allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture" 
+      loading="lazy">
+    </iframe>
+  </div>
 
   <audio id="audio" preload="auto" crossorigin="anonymous" src="zerocross - ollie (mixed).mp3"></audio>
 
@@ -78,8 +102,10 @@
     const audio = document.getElementById('audio');
     const playBtn = document.getElementById('playBtn');
     const trackNameDisplay = document.getElementById('track-name');
+    const spotifyWrap = document.getElementById('spotifyWrap');
     let isPlaying = false;
     let audioContext;
+    let hasInteracted = false;
 
     async function togglePlayback() {
       try {
@@ -101,11 +127,13 @@
           console.log("▶️ Playing audio:", audio.src);
           await audio.play();
           document.body.classList.add('playing');
+          spotifyWrap.classList.add('playing');
           isPlaying = true;
         } else {
           console.log("⏸ Pausing audio");
           audio.pause();
           document.body.classList.remove('playing');
+          spotifyWrap.classList.remove('playing');
           isPlaying = false;
         }
       } catch (err) {
@@ -114,9 +142,14 @@
       }
     }
 
-    // Make entire page clickable
+    // Make entire page clickable after first legit interaction
     document.body.addEventListener('click', async () => {
-      await togglePlayback();
+      if (!hasInteracted) {
+        hasInteracted = true;
+        await togglePlayback();
+      } else {
+        togglePlayback();
+      }
     });
 
     // Avoid double trigger on button
