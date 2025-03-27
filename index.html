@@ -22,6 +22,11 @@
       100% { opacity: 1; }
     }
 
+    @keyframes glow-pulse {
+      0%, 100% { text-shadow: 0 0 20px #fff; }
+      50% { text-shadow: 0 0 50px #fff; }
+    }
+
     body {
       margin: 0;
       padding: 0;
@@ -47,18 +52,19 @@
     a.line {
       text-decoration: none;
       color: inherit;
-      font-size: 8rem;
+      font-size: 12rem;
       display: block;
       width: 100%;
       text-align: center;
+      line-height: 1;
     }
 
     .line {
-      margin: 0.1em;
+      margin: 0.05em;
     }
 
     body.playing .line, body.playing .play-btn {
-      animation: glitch-strobe 0.4s infinite;
+      animation: glitch-strobe 0.4s infinite, glow-pulse 2s infinite alternate;
     }
 
     .play-btn {
@@ -70,6 +76,17 @@
       font-family: 'Orbitron', sans-serif;
       font-size: 3.5rem;
       position: relative;
+    }
+
+    #track-name {
+      position: fixed;
+      bottom: 10%;
+      width: 100%;
+      text-align: center;
+      font-size: 1.5rem;
+      color: #fff;
+      opacity: 0.8;
+      display: none;
     }
 
     canvas {
@@ -93,25 +110,27 @@
   <a href="https://open.spotify.com/artist/270SgoQaguqwQT9OLHYRrx" target="_blank" class="line">CROSS</a>
 
   <button class="play-btn" id="playBtn">⏯</button>
+  <div id="track-name"></div>
   <audio id="audio" preload="auto" crossorigin="anonymous"></audio>
   <canvas id="visualizer"></canvas>
 
   <script>
     const tracks = [
-      'heavenearth (mixed).mp3',
-      'zero cross - incredible (mixed) 2.mp3',
-      'zerocross - ollie (mixed).mp3'
+      {src: 'heavenearth (mixed).mp3', name: 'Heavenearth'},
+      {src: 'zero cross - incredible (mixed) 2.mp3', name: 'Incredible'},
+      {src: 'zerocross - ollie (mixed).mp3', name: 'Ollie'}
     ];
 
     const audio = document.getElementById('audio');
     const playBtn = document.getElementById('playBtn');
+    const trackNameDisplay = document.getElementById('track-name');
     const canvas = document.getElementById('visualizer');
     const ctx = canvas.getContext('2d');
     let isPlaying = false;
     let currentIndex = Math.floor(Math.random() * tracks.length);
     let audioContext, source, analyser, dataArray, bufferLength;
 
-    audio.src = tracks[currentIndex];
+    audio.src = tracks[currentIndex].src;
 
     function setupVisualizer() {
       audioContext = new (window.AudioContext || window.webkitAudioContext)();
@@ -140,11 +159,18 @@
       }
     }
 
+    function displayTrackName(name) {
+      trackNameDisplay.textContent = name;
+      trackNameDisplay.style.display = 'block';
+      setTimeout(() => trackNameDisplay.style.display = 'none', 3000);
+    }
+
     playBtn.addEventListener('click', () => {
       if (!isPlaying) {
         audio.play();
         if (!audioContext) setupVisualizer();
         document.body.classList.add('playing');
+        displayTrackName(tracks[currentIndex].name);
         isPlaying = true;
       } else {
         audio.pause();
@@ -154,13 +180,10 @@
     });
 
     audio.addEventListener('ended', () => {
-      let nextIndex;
-      do {
-        nextIndex = Math.floor(Math.random() * tracks.length);
-      } while (nextIndex === currentIndex);
-      currentIndex = nextIndex;
-      audio.src = tracks[currentIndex];
+      currentIndex = (currentIndex + 1) % tracks.length;
+      audio.src = tracks[currentIndex].src;
       audio.play();
+      displayTrackName(tracks[currentIndex].name);
     });
 
     window.addEventListener('resize', () => {
