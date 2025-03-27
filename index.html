@@ -134,12 +134,10 @@
   <script>
     window.addEventListener('DOMContentLoaded', () => {
       const tracks = [
-  { src: 'https://github.com/iiiiijjjj/villain0.us/raw/main/heavenearth%20(mixed).mp3', name: 'HEAVENEARTH' },
-  { src: 'https://github.com/iiiiijjjj/villain0.us/raw/main/zero%20cross%20-%20incredible%20(mixed)%202.mp3', name: 'INCREDIBLE' },
-  { src: 'https://github.com/iiiiijjjj/villain0.us/raw/main/zerocross%20-%20ollie%20(mixed).mp3', name: 'OLLIE' }
-];
-
-      function shuffle(array) {
+  { src: 'https://iiiiijjjj.github.io/villain0.us/heavenearth%20(mixed).mp3', name: 'HEAVENEARTH' },
+  { src: 'https://iiiiijjjj.github.io/villain0.us/zero%20cross%20-%20incredible%20(mixed)%202.mp3', name: 'INCREDIBLE' },
+  { src: 'https://iiiiijjjj.github.io/villain0.us/zerocross%20-%20ollie%20(mixed).mp3', name: 'OLLIE' }
+];) {
         for (let i = array.length - 1; i > 0; i--) {
           const j = Math.floor(Math.random() * (i + 1));
           [array[i], array[j]] = [array[j], array[i]];
