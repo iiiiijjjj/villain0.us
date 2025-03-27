@@ -83,11 +83,13 @@
       bottom: 10%;
       width: 100%;
       text-align: center;
-      font-size: 1.5rem;
+      font-size: 2rem;
       color: #fff;
       opacity: 0.8;
       display: none;
       pointer-events: none;
+      font-family: 'Orbitron', sans-serif;
+      text-transform: uppercase;
     }
 
     canvas {
@@ -119,9 +121,9 @@
 
   <script>
     const tracks = [
-      {src: 'heavenearth (mixed).mp3', name: 'Heavenearth'},
-      {src: 'zero cross - incredible (mixed) 2.mp3', name: 'Incredible'},
-      {src: 'zerocross - ollie (mixed).mp3', name: 'Ollie'}
+      {src: 'heavenearth (mixed).mp3', name: 'HEAVENEARTH'},
+      {src: 'zero cross - incredible (mixed) 2.mp3', name: 'INCREDIBLE'},
+      {src: 'zerocross - ollie (mixed).mp3', name: 'OLLIE'}
     ];
 
     const audio = document.getElementById('audio');
@@ -166,25 +168,6 @@
       }
     }
 
-    const particles = Array.from({length: 40000}, () => ({
-      x: Math.random() * particleCanvas.width,
-      y: Math.random() * particleCanvas.height,
-      symbol: Math.random() > 0.5 ? '0' : 'X',
-      speed: Math.random() * 0.5 + 0.2
-    }));
-
-    function animateParticles() {
-      particleCtx.clearRect(0, 0, particleCanvas.width, particleCanvas.height);
-      particleCtx.font = '16px Orbitron';
-      particleCtx.fillStyle = '#fff';
-      particles.forEach(p => {
-        p.y += p.speed;
-        if (p.y > particleCanvas.height) p.y = 0;
-        particleCtx.fillText(p.symbol, p.x, p.y);
-      });
-      requestAnimationFrame(animateParticles);
-    }
-
     function displayTrackName(name) {
       trackNameDisplay.textContent = name;
       trackNameDisplay.style.display = 'block';
@@ -207,12 +190,11 @@
       }
     });
 
-    function resizeCanvas() {
+    window.addEventListener('resize', () => {
       canvas.width = particleCanvas.width = window.innerWidth;
       canvas.height = particleCanvas.height = window.innerHeight;
-    }
-    window.addEventListener('resize', resizeCanvas);
-    resizeCanvas();
+    });
+    window.dispatchEvent(new Event('resize'));
   </script>
 </body>
 </html>
