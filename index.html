@@ -79,10 +79,10 @@
 
     #visualizer {
       position: fixed;
-      top: 0;
+      bottom: 0;
       left: 0;
       width: 100vw;
-      height: 100vh;
+      height: 30vh;
       z-index: 1;
       background: transparent;
       display: none;
@@ -154,14 +154,11 @@
       requestAnimationFrame(draw);
       analyser.getByteFrequencyData(dataArray);
       ctx.clearRect(0, 0, canvas.width, canvas.height);
-      const barWidth = (canvas.width / bufferLength) / 2;
-      for (let i = 0; i < bufferLength / 2; i++) {
+      const barWidth = canvas.width / bufferLength;
+      for (let i = 0; i < bufferLength; i++) {
         const height = dataArray[i];
         ctx.fillStyle = '#fff';
-        const xLeft = (canvas.width / 2) - ((i + 1) * barWidth);
-        const xRight = (canvas.width / 2) + (i * barWidth);
-        ctx.fillRect(xLeft, canvas.height - height, barWidth - 1, height);
-        ctx.fillRect(xRight, canvas.height - height, barWidth - 1, height);
+        ctx.fillRect(i * barWidth, canvas.height - height, barWidth - 1, height);
       }
     }
 
@@ -213,7 +210,8 @@
 
     function resizeCanvas() {
       canvas.width = particleCanvas.width = window.innerWidth;
-      canvas.height = particleCanvas.height = window.innerHeight;
+      canvas.height = window.innerHeight;
+      particleCanvas.height = window.innerHeight;
     }
 
     window.addEventListener('resize', resizeCanvas);
