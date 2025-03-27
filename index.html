@@ -29,6 +29,7 @@
       position: relative;
       overflow: hidden;
       z-index: 10;
+      height: 100vh;
     }
 
     body.playing {
@@ -92,7 +93,7 @@
     }
 
     #visualizer {
-      position: fixed;
+      position: absolute;
       top: 0;
       left: 0;
       width: 100vw;
@@ -104,7 +105,7 @@
     }
 
     #particleCanvas {
-      position: fixed;
+      position: absolute;
       top: 0;
       left: 0;
       width: 100vw;
@@ -134,10 +135,10 @@
   <script>
     window.addEventListener('DOMContentLoaded', () => {
       const tracks = [
-  { src: 'heavenearth (mixed).mp3', name: 'HEAVENEARTH' },
-  { src: 'zero cross - incredible (mixed) 2.mp3', name: 'INCREDIBLE' },
-  { src: 'zerocross - ollie (mixed).mp3', name: 'OLLIE' }
-];
+        { src: 'heavenearth (mixed).mp3', name: 'HEAVENEARTH' },
+        { src: 'zero cross - incredible (mixed) 2.mp3', name: 'INCREDIBLE' },
+        { src: 'zerocross - ollie (mixed).mp3', name: 'OLLIE' }
+      ];
 
       function shuffle(array) {
         for (let i = array.length - 1; i > 0; i--) {
@@ -245,34 +246,28 @@
       }
 
       playBtn.addEventListener('click', async () => {
-  try {
-    console.log('▶ Button clicked');
-    if (!audioContext) {
-      console.log('Setting up AudioContext');
-      setupVisualizer();
-    }
-    if (audioContext.state !== 'running') {
-      await audioContext.resume();
-      console.log('AudioContext resumed');
-    }
-    console.log('Audio source:', audio.src);
-    if (!isPlaying) {
-      await audio.play();
-      console.log('Track is playing');
-      document.body.classList.add('playing');
-      displayTrackName(shuffled[currentIndex].name);
-      isPlaying = true;
-    } else {
-      audio.pause();
-      console.log('Track paused');
-      document.body.classList.remove('playing');
-      isPlaying = false;
-    }
-  } catch (err) {
-    console.error("Audio play failed:", err);
-    alert('⚠️ Failed to start audio. Check browser permissions or click again.');
-  }
-});
+        try {
+          if (!audioContext) {
+            setupVisualizer();
+          }
+          if (audioContext.state !== 'running') {
+            await audioContext.resume();
+          }
+          if (!isPlaying) {
+            await audio.play();
+            document.body.classList.add('playing');
+            displayTrackName(shuffled[currentIndex].name);
+            isPlaying = true;
+          } else {
+            audio.pause();
+            document.body.classList.remove('playing');
+            isPlaying = false;
+          }
+        } catch (err) {
+          console.error("Audio play failed:", err);
+          alert('⚠️ Failed to start audio. Check browser permissions or click again.');
+        }
+      });
 
       function displayTrackName(name) {
         trackNameDisplay.textContent = name;
