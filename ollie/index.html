@@ -57,10 +57,11 @@
       font-size: 2rem;
       color: #fff;
       text-transform: uppercase;
+      display: block;
     }
 
     .spotify-wrapper {
-      margin-top: 2rem;
+      margin-top: 1rem;
       width: 320px;
       height: 80px;
       overflow: hidden;
@@ -191,12 +192,10 @@
         if (!isPlaying) {
           await audio.play();
           document.body.classList.add('playing');
-          trackNameDisplay.style.display = 'block';
           isPlaying = true;
         } else {
           audio.pause();
           document.body.classList.remove('playing');
-          trackNameDisplay.style.display = 'none';
           isPlaying = false;
         }
       } catch (err) {
