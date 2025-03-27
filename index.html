@@ -260,23 +260,24 @@
     }
 
     playBtn.addEventListener('click', async () => {
-      try {
-        if (!audioContext) setupVisualizer();
-        await audioContext.resume();
-        if (!isPlaying) {
-          await audio.play();
-          document.body.classList.add('playing');
-          displayTrackName(shuffled[currentIndex].name);
-          isPlaying = true;
-        } else {
-          audio.pause();
-          document.body.classList.remove('playing');
-          isPlaying = false;
-        }
-      } catch (err) {
-        console.error("Playback error:", err);
-      }
-    });
+  try {
+    if (!audioContext) setupVisualizer();
+    await audioContext.resume();
+
+    if (!isPlaying) {
+      await audio.play();
+      document.body.classList.add('playing');
+      displayTrackName(shuffled[currentIndex].name);
+      isPlaying = true;
+    } else {
+      audio.pause();
+      document.body.classList.remove('playing');
+      isPlaying = false;
+    }
+  } catch (err) {
+    console.error("Audio play failed:", err);
+  }
+});
 
     function displayTrackName(name) {
       trackNameDisplay.textContent = name;
