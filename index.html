@@ -36,17 +36,14 @@
       animation: glitch 2s infinite;
     }
 
-    .spotify-player {
+    .play-btn {
       margin-top: 2rem;
-      width: 100%;
-      max-width: 400px;
-    }
-
-    iframe {
-      width: 100%;
-      height: 152px;
+      font-size: 2rem;
+      background: none;
       border: none;
-      border-radius: 12px;
+      cursor: pointer;
+      color: #000;
+      font-family: 'Orbitron', sans-serif;
     }
   </style>
 </head>
@@ -56,8 +53,46 @@
   <div class="line">CROSS</div>
   <div class="line">WRAITH</div>
 
-  <div class="spotify-player">
-    <iframe src="https://open.spotify.com/embed/album/0bm7A88hVTGR9G1LmTUyHi?utm_source=generator&theme=0" allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture" loading="lazy"></iframe>
-  </div>
+  <button class="play-btn" id="playBtn">▶</button>
+  <audio id="audio" preload="auto"></audio>
+
+  <script>
+    const tracks = [
+      'heavenearth (mixed).mp3',
+      'zero cross - incredible (mixed) 2.mp3',
+      'zerocross - ollie (mixed).mp3'
+    ];
+
+    const audio = document.getElementById('audio');
+    const playBtn = document.getElementById('playBtn');
+    let isPlaying = false;
+    let currentIndex = Math.floor(Math.random() * tracks.length);
+
+    function playTrack(index) {
+      audio.src = tracks[index];
+      audio.play();
+      playBtn.textContent = '▐▐';
+      isPlaying = true;
+    }
+
+    playBtn.addEventListener('click', () => {
+      if (!isPlaying) {
+        playTrack(currentIndex);
+      } else {
+        audio.pause();
+        playBtn.textContent = '▶';
+        isPlaying = false;
+      }
+    });
+
+    audio.addEventListener('ended', () => {
+      let nextIndex;
+      do {
+        nextIndex = Math.floor(Math.random() * tracks.length);
+      } while (nextIndex === currentIndex);
+      currentIndex = nextIndex;
+      playTrack(currentIndex);
+    });
+  </script>
 </body>
 </html>
