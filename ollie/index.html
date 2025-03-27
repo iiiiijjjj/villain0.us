@@ -11,7 +11,7 @@
     t.src=v;s=b.getElementsByTagName(e)[0];
     s.parentNode.insertBefore(t,s)}(window, document,'script',
     'https://connect.facebook.net/en_US/fbevents.js');
-    
+
     fbq('init', '1335226287780423');
     fbq('track', 'PageView');
   </script>
@@ -20,6 +20,7 @@
     src="https://www.facebook.com/tr?id=1335226287780423&ev=PageView&noscript=1"/>
   </noscript>
   <!-- End Meta Pixel Code -->
+
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>0cross - ollie</title>
@@ -63,7 +64,7 @@
       z-index: 10;
       transition: text-shadow 0.3s ease, color 1s;
     }
-    a.line:hover {
+    a.line:hover, a.glow-group:hover {
       text-shadow: 0 0 10px rgba(0, 0, 0, 0.7);
     }
     .play-btn, #track-name, #spotify-frame-wrapper, #play-label {
@@ -152,10 +153,10 @@
   </style>
 </head>
 <body>
-  <a href="https://open.spotify.com/artist/270SgoQaguqwQT9OLHYRrx" target="_blank" class="line" id="topText">0</a>
-  <a href="https://open.spotify.com/track/7DnHJ4rI5qkHF42ALGCMP8?si=574a660cae804489" target="_blank" class="line" id="bottomText">CR0SS</a>
+  <a href="https://open.spotify.com/artist/270SgoQaguqwQT9OLHYRrx" target="_blank" class="line glow-group" id="topText">0</a>
+  <a href="https://open.spotify.com/track/7DnHJ4rI5qkHF42ALGCMP8?si=574a660cae804489" target="_blank" class="line glow-group" id="bottomText">CR0SS</a>
 
-  <button class="play-btn" id="playBtn">𖦤</button>
+  <button class="play-btn" id="playBtn">ᒤ</button>
   <div id="play-label">PLAY</div>
   <div id="track-name">OLLIE</div>
 
@@ -207,9 +208,8 @@
         const barWidth = canvas.width / bufferLength;
         const bass = dataArray.slice(0, 10).reduce((a, b) => a + b, 0) / 10;
 
-        playBtn.style.textShadow = `0 0 ${bass / 4}px #fff, 0 0 ${bass / 2}px #fff`;
-        trackName.style.textShadow = `0 0 ${bass / 4}px #fff, 0 0 ${bass / 2}px #fff`;
-        playLabel.style.textShadow = `0 0 ${bass / 4}px #fff, 0 0 ${bass / 2}px #fff`;
+        playBtn.style.textShadow = trackName.style.textShadow = playLabel.style.textShadow =
+          `0 0 ${bass / 4}px #fff, 0 0 ${bass / 2}px #fff`;
 
         for (let i = 0; i < bufferLength / 2; i++) {
           const height = dataArray[i] * 2;
