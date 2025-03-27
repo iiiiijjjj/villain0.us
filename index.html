@@ -8,20 +8,6 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@700&display=swap" rel="stylesheet">
   <style>
-    @keyframes glitch-strobe {
-      0% { opacity: 1; }
-      10% { opacity: 0; }
-      20% { opacity: 1; }
-      30% { opacity: 0; }
-      40% { opacity: 1; }
-      50% { opacity: 0; }
-      60% { opacity: 1; }
-      70% { opacity: 0; }
-      80% { opacity: 1; }
-      90% { opacity: 0; }
-      100% { opacity: 1; }
-    }
-
     @keyframes glow-pulse {
       0%, 100% { text-shadow: 0 0 15px #fff; }
       50% { text-shadow: 0 0 40px #fff; }
@@ -64,10 +50,6 @@
       margin: 0.1em;
     }
 
-    body.playing .line, body.playing .play-btn {
-      animation: glitch-strobe 0.4s infinite, glow-pulse 1s infinite alternate;
-    }
-
     .play-btn {
       margin-top: 1.5rem;
       background: none;
@@ -108,7 +90,6 @@
 
     body.playing canvas {
       display: block;
-      animation: glitch-strobe 0.4s infinite;
     }
   </style>
 </head>
@@ -116,7 +97,7 @@
   <a href="https://open.spotify.com/artist/270SgoQaguqwQT9OLHYRrx" target="_blank" class="line">0</a>
   <a href="https://open.spotify.com/artist/270SgoQaguqwQT9OLHYRrx" target="_blank" class="line">CROSS</a>
 
-  <button class="play-btn" id="playBtn">▷</button>
+  <button class="play-btn" id="playBtn">♬</button>
   <div id="track-name"></div>
   <audio id="audio" preload="auto" crossorigin="anonymous"></audio>
   <canvas id="visualizer"></canvas>
@@ -202,13 +183,11 @@
         audio.play();
         if (!audioContext) setupVisualizer();
         document.body.classList.add('playing');
-        playBtn.textContent = '⬜';
         displayTrackName(tracks[currentIndex].name);
         isPlaying = true;
       } else {
         audio.pause();
         document.body.classList.remove('playing');
-        playBtn.textContent = '▷';
         isPlaying = false;
       }
     });
