@@ -55,6 +55,7 @@
       font-family: 'Orbitron', sans-serif;
       z-index: 10;
       transition: all 0.3s ease;
+      animation: none;
     }
 
     .playing #track-name {
@@ -62,7 +63,7 @@
     }
 
     .spotify-wrapper {
-      margin-top: 2rem;
+      margin-top: 1.5rem;
       width: 320px;
       height: 80px;
       overflow: hidden;
@@ -71,8 +72,8 @@
     }
 
     .playing .spotify-wrapper {
-      width: 270px;
-      height: 100px;
+      width: 130px;
+      height: 130px;
       animation: pulse 1s infinite alternate;
     }
 
@@ -126,7 +127,6 @@
   <script>
     const audio = document.getElementById('audio');
     const playBtn = document.getElementById('playBtn');
-    const trackNameDisplay = document.getElementById('track-name');
     const canvas = document.getElementById('visualizer');
     const ctx = canvas.getContext('2d');
     const particleCanvas = document.getElementById('particleCanvas');
