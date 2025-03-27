@@ -43,7 +43,6 @@
       width: 100%;
       text-align: center;
       line-height: 1;
-      animation: glow-pulse 2s infinite alternate;
     }
 
     .line {
@@ -84,11 +83,14 @@
       width: 100vw;
       height: 100vh;
       z-index: -1;
-      display: none;
       background: #000;
     }
 
-    body.playing canvas {
+    #visualizer {
+      display: none;
+    }
+
+    body.playing #visualizer {
       display: block;
     }
   </style>
