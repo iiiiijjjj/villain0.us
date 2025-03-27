@@ -116,7 +116,6 @@
       height: 100vh;
       z-index: 1;
       background: transparent;
-      display: none;
       pointer-events: none;
     }
 
@@ -135,6 +134,8 @@
       height: 80px;
       transition: all 0.5s ease;
       position: relative;
+      display: block;
+      z-index: 10;
     }
 
     body.playing #spotify-frame-wrapper {
@@ -170,7 +171,7 @@
   </div>
 
   <div class="play-group">
-    <button class="play-btn" id="playBtn">�</button>
+    <button class="play-btn" id="playBtn">𖦤</button>
     <div id="play-label">PLAY</div>
     <div id="track-name">OLLIE</div>
   </div>
