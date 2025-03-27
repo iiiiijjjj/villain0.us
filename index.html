@@ -38,20 +38,26 @@
 
     .play-button {
       margin-top: 2rem;
-      font-size: 1rem;
-      padding: 0.75em 1.5em;
+      font-size: 1.5rem;
+      padding: 0.6em 1.5em;
       background: #000;
       color: #fff;
       border: none;
-      border-radius: 4px;
+      border-radius: 9999px;
       cursor: pointer;
       font-family: 'Orbitron', sans-serif;
-      letter-spacing: 1px;
+      display: flex;
+      align-items: center;
+      gap: 0.5em;
       transition: background 0.3s;
     }
 
     .play-button:hover {
-      background: #333;
+      background: #222;
+    }
+
+    .play-icon {
+      font-size: 1.5rem;
     }
   </style>
 </head>
@@ -61,6 +67,8 @@
   <div class="line">CROSS</div>
   <div class="line">WRAITH</div>
 
-  <button class="play-button" onclick="window.open('https://open.spotify.com/album/0bm7A88hVTGR9G1LmTUyHi?si=0xVjg4grQxurn0iiYPX5-w','_blank')">PLAY</button>
+  <button class="play-button" onclick="window.open('https://open.spotify.com/album/0bm7A88hVTGR9G1LmTUyHi?si=0xVjg4grQxurn0iiYPX5-w','_blank')">
+    <span class="play-icon">▶</span> PLAY
+  </button>
 </body>
 </html>
