@@ -44,6 +44,7 @@
       font-family: 'Orbitron', sans-serif;
       font-size: 6rem;
       animation: pulse 1s infinite alternate;
+      z-index: 10;
     }
 
     @keyframes pulse {
@@ -64,15 +65,15 @@
     }
 
     .spotify-wrapper.playing {
-      width: 80px;
-      height: 80px;
+      width: 100px;
+      height: 100px;
       overflow: hidden;
       border-radius: 12px;
       filter: brightness(1.2) contrast(1.1) grayscale(100%) drop-shadow(0 0 6px white);
     }
 
     iframe {
-      width: 250px;
+      width: 320px;
       height: 80px;
       border: none;
       border-radius: 6px;
@@ -105,32 +106,28 @@
     const spotifyWrap = document.getElementById('spotifyWrap');
     let isPlaying = false;
     let audioContext;
-    let hasInteracted = false;
+
+    async function initAudioContext() {
+      if (!audioContext) {
+        audioContext = new (window.AudioContext || window.webkitAudioContext)();
+        const source = audioContext.createMediaElementSource(audio);
+        source.connect(audioContext.destination);
+      }
+    }
 
     async function togglePlayback() {
       try {
-        console.log("🔊 User clicked");
-
-        if (!audioContext) {
-          console.log("🎧 Creating AudioContext");
-          audioContext = new (window.AudioContext || window.webkitAudioContext)();
-          const source = audioContext.createMediaElementSource(audio);
-          source.connect(audioContext.destination);
-        }
-
+        await initAudioContext();
         if (audioContext.state === "suspended") {
-          console.log("⚡ Resuming audio context");
           await audioContext.resume();
         }
 
         if (!isPlaying) {
-          console.log("▶️ Playing audio:", audio.src);
           await audio.play();
           document.body.classList.add('playing');
           spotifyWrap.classList.add('playing');
           isPlaying = true;
         } else {
-          console.log("⏸ Pausing audio");
           audio.pause();
           document.body.classList.remove('playing');
           spotifyWrap.classList.remove('playing');
@@ -138,11 +135,11 @@
         }
       } catch (err) {
         console.error("❌ Audio play failed:", err);
-        alert("⚠️ Audio blocked. Try clicking again.");
+        alert("⚠️ Audio blocked. Try clicking again and check browser permissions.");
       }
     }
 
-    // Make entire page clickable after first legit interaction
+    let hasInteracted = false;
     document.body.addEventListener('click', async () => {
       if (!hasInteracted) {
         hasInteracted = true;
@@ -152,7 +149,6 @@
       }
     });
 
-    // Avoid double trigger on button
     playBtn.addEventListener('click', async (e) => {
       e.stopPropagation();
       await togglePlayback();
