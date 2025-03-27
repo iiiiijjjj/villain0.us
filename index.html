@@ -1,6 +1,5 @@
 <!DOCTYPE html>
 <html lang="en">
->
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
@@ -95,6 +94,7 @@
       height: 100vh;
       z-index: -1;
       display: none;
+      background: #000;
     }
 
     body.playing canvas {
@@ -148,8 +148,7 @@
       const barWidth = canvas.width / bufferLength;
       for (let i = 0; i < bufferLength; i++) {
         const height = dataArray[i];
-        const hue = i * 4;
-        ctx.fillStyle = `hsl(${hue}, 100%, 50%)`;
+        ctx.fillStyle = '#fff';
         ctx.fillRect(i * barWidth, canvas.height - height, barWidth - 2, height);
       }
     }
