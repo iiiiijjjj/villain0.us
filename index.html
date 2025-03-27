@@ -36,6 +36,24 @@
       color: #fff;
     }
 
+    body.crt::before {
+      content: "";
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100vw;
+      height: 100vh;
+      z-index: 999;
+      background: repeating-linear-gradient(
+        to bottom,
+        rgba(255,255,255,0.05),
+        rgba(255,255,255,0.05) 2px,
+        transparent 2px,
+        transparent 4px
+      );
+      pointer-events: none;
+    }
+
     a.line {
       text-decoration: none;
       color: inherit;
@@ -112,12 +130,13 @@
   </style>
 </head>
 <body>
-  <a href="https://open.spotify.com/artist/270SgoQaguqwQT9OLHYRrx" target="_blank" class="line">0</a>
-  <a href="https://open.spotify.com/artist/270SgoQaguqwQT9OLHYRrx" target="_blank" class="line">CROSS</a>
+  <a href="https://open.spotify.com/artist/270SgoQaguqwQT9OLHYRrx" target="_blank" class="line" id="topText">0</a>
+  <a href="https://open.spotify.com/artist/270SgoQaguqwQT9OLHYRrx" target="_blank" class="line" id="bottomText">CROSS</a>
 
   <button class="play-btn" id="playBtn">𖦤</button>
   <div id="track-name"></div>
   <audio id="audio" preload="auto" crossorigin="anonymous"></audio>
+  <audio id="crackle" preload="auto" src="vinyl.mp3"></audio>
   <canvas id="visualizer"></canvas>
   <canvas id="particleCanvas"></canvas>
 
@@ -139,17 +158,21 @@
     tracks = shuffle(tracks);
 
     const audio = document.getElementById('audio');
+    const crackle = document.getElementById('crackle');
     const playBtn = document.getElementById('playBtn');
     const trackNameDisplay = document.getElementById('track-name');
     const canvas = document.getElementById('visualizer');
     const ctx = canvas.getContext('2d');
     const particleCanvas = document.getElementById('particleCanvas');
     const particleCtx = particleCanvas.getContext('2d');
+    const topText = document.getElementById('topText');
+    const bottomText = document.getElementById('bottomText');
 
     let isPlaying = false;
     let currentIndex = 0;
     let audioContext, source, analyser, dataArray, bufferLength;
-    let lastBass = 0;
+    let glitchCooldown = 0;
+    let killBuffer = '';
 
     audio.src = tracks[currentIndex].src;
 
@@ -171,21 +194,30 @@
       analyser.getByteFrequencyData(dataArray);
       ctx.clearRect(0, 0, canvas.width, canvas.height);
       const barWidth = canvas.width / bufferLength;
-      const barWidth = (canvas.width / bufferLength) / 2;
 
-      let bass = dataArray.slice(0, 10).reduce((a, b) => a + b, 0) / 10;
-
+      const bass = dataArray.slice(0, 10).reduce((a, b) => a + b, 0) / 10;
       playBtn.style.textShadow = `0 0 ${bass / 4}px #fff, 0 0 ${bass / 2}px #fff`;
+
+      if (bass > 200) {
+        document.body.classList.add('crt');
+      } else {
+        document.body.classList.remove('crt');
+      }
 
       for (let i = 0; i < bufferLength; i++) {
         const height = dataArray[i] * 2;
-        const x = i * barWidth;
         ctx.fillStyle = '#fff';
+        const x = i * barWidth;
         ctx.fillRect(x, canvas.height - height, barWidth - 1, height);
       }
+
+      if (Math.random() < 0.005 && glitchCooldown <= 0) {
+        topText.textContent = topText.textContent === '0' ? 'Ø' : '0';
+        bottomText.textContent = bottomText.textContent === 'CROSS' ? 'CRØSS' : 'CROSS';
+        glitchCooldown = 30;
       }
 
-      lastBass = bass;
+      if (glitchCooldown > 0) glitchCooldown--;
     }
 
     const particles = Array.from({ length: 1000 }, () => ({
@@ -211,10 +243,19 @@
     }
 
     audio.addEventListener('ended', () => {
-      currentIndex = (currentIndex + 1) % tracks.length;
-      audio.src = tracks[currentIndex].src;
-      audio.play();
-      displayTrackName(tracks[currentIndex].name);
+      if (!audioContext) return;
+      audioContext.resume().then(() => {
+        crackle.play().catch(() => {
+          nextTrack();
+        });
+      });
+      crackle.onended = () => {
+        currentIndex = (currentIndex + 1) % tracks.length;
+        audio.src = tracks[currentIndex].src;
+        audio.play();
+        displayTrackName(tracks[currentIndex].name);
+        crackle.onended = null;
+      }
     });
 
     playBtn.addEventListener('click', () => {
@@ -239,6 +280,16 @@
       setTimeout(() => trackNameDisplay.style.display = 'none', 3000);
     }
 
+    window.addEventListener('keydown', (e) => {
+      killBuffer += e.key.toLowerCase();
+      if (killBuffer.length > 10) killBuffer = killBuffer.slice(-10);
+      if (killBuffer.includes('0x')) {
+        document.body.style.filter = 'invert(1) hue-rotate(180deg) saturate(3)';
+        document.body.classList.add('crt');
+        canvas.style.filter = 'contrast(5) blur(2px)';
+      }
+    });
+
     function resizeCanvas() {
       canvas.width = particleCanvas.width = window.innerWidth;
       canvas.height = particleCanvas.height = window.innerHeight;
@@ -247,7 +298,6 @@
     window.addEventListener('resize', resizeCanvas);
     resizeCanvas();
 
-    // Try autoplay on load
     window.addEventListener('load', () => {
       if (!audioContext) setupVisualizer();
       audioContext.resume().then(() => {
