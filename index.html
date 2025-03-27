@@ -170,19 +170,19 @@
       requestAnimationFrame(draw);
       analyser.getByteFrequencyData(dataArray);
       ctx.clearRect(0, 0, canvas.width, canvas.height);
+      const barWidth = canvas.width / bufferLength;
       const barWidth = (canvas.width / bufferLength) / 2;
 
       let bass = dataArray.slice(0, 10).reduce((a, b) => a + b, 0) / 10;
 
       playBtn.style.textShadow = `0 0 ${bass / 4}px #fff, 0 0 ${bass / 2}px #fff`;
 
-      for (let i = 0; i < bufferLength / 2; i++) {
+      for (let i = 0; i < bufferLength; i++) {
         const height = dataArray[i] * 2;
+        const x = i * barWidth;
         ctx.fillStyle = '#fff';
-        const xLeft = (canvas.width / 2) - ((i + 1) * barWidth);
-        const xRight = (canvas.width / 2) + (i * barWidth);
-        ctx.fillRect(xLeft, canvas.height - height, barWidth - 1, height);
-        ctx.fillRect(xRight, canvas.height - height, barWidth - 1, height);
+        ctx.fillRect(x, canvas.height - height, barWidth - 1, height);
+      }
       }
 
       lastBass = bass;
