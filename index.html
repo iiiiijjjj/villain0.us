@@ -19,9 +19,9 @@
 
     @keyframes glitch-hover {
       0% { transform: none; }
-      25% { transform: skew(-5deg); }
-      50% { transform: skew(5deg); }
-      75% { transform: skew(-2deg); }
+      25% { transform: translateX(-1px); }
+      50% { transform: translateX(1px); }
+      75% { transform: translateX(-1px); }
       100% { transform: none; }
     }
 
@@ -39,14 +39,14 @@
       letter-spacing: 2px;
     }
 
-    a {
+    a.line {
       text-decoration: none;
       color: inherit;
+      animation: glitch 2s infinite;
     }
 
     .line {
       margin: 0.2em;
-      animation: glitch 2s infinite;
     }
 
     .play-btn {
@@ -57,11 +57,11 @@
       color: #000;
       font-family: 'Orbitron', sans-serif;
       animation: glitch 2s infinite;
-      transition: transform 0.3s;
+      transition: transform 0.2s;
     }
 
     .play-btn:hover {
-      animation: glitch-hover 0.5s infinite;
+      animation: glitch-hover 0.3s infinite;
     }
 
     .play-style {
@@ -102,7 +102,7 @@
         audio.currentTime = 0;
       }
       audio.play();
-      playBtn.textContent = '⏸';
+      playBtn.textContent = '❚❚';
       playBtn.classList.remove('play-style');
       playBtn.classList.add('pause-style');
       isPlaying = true;
@@ -111,7 +111,7 @@
     playBtn.addEventListener('click', () => {
       if (!isPlaying) {
         audio.play();
-        playBtn.textContent = '⏸';
+        playBtn.textContent = '❚❚';
         playBtn.classList.remove('play-style');
         playBtn.classList.add('pause-style');
         isPlaying = true;
