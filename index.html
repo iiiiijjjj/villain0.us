@@ -36,28 +36,20 @@
       animation: glitch 2s infinite;
     }
 
-    .play-button {
+    .spotify-mini {
       margin-top: 2rem;
-      font-size: 1.5rem;
-      padding: 0.6em 1.5em;
-      background: #000;
-      color: #fff;
+      width: 80px;
+      height: 80px;
+      overflow: hidden;
+      border-radius: 50%;
+    }
+
+    iframe {
+      width: 80px;
+      height: 80px;
       border: none;
-      border-radius: 9999px;
-      cursor: pointer;
-      font-family: 'Orbitron', sans-serif;
-      display: flex;
-      align-items: center;
-      gap: 0.5em;
-      transition: background 0.3s;
-    }
-
-    .play-button:hover {
-      background: #222;
-    }
-
-    .play-icon {
-      font-size: 1.5rem;
+      border-radius: 50%;
+      transform: scale(1.2);
     }
   </style>
 </head>
@@ -67,8 +59,8 @@
   <div class="line">CROSS</div>
   <div class="line">WRAITH</div>
 
-  <button class="play-button" onclick="window.open('https://open.spotify.com/album/0bm7A88hVTGR9G1LmTUyHi?si=0xVjg4grQxurn0iiYPX5-w','_blank')">
-    <span class="play-icon">▶</span> PLAY
-  </button>
+  <div class="spotify-mini">
+    <iframe src="https://open.spotify.com/embed/album/0bm7A88hVTGR9G1LmTUyHi?utm_source=generator&theme=0" allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture" loading="lazy"></iframe>
+  </div>
 </body>
 </html>
