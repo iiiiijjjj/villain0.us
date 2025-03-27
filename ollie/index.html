@@ -81,27 +81,48 @@
     let isPlaying = false;
     let audioContext;
 
-    playBtn.addEventListener('click', async () => {
+    async function togglePlayback() {
       try {
+        console.log("🔊 User clicked");
+
         if (!audioContext) {
+          console.log("🎧 Creating AudioContext");
           audioContext = new (window.AudioContext || window.webkitAudioContext)();
           const source = audioContext.createMediaElementSource(audio);
           source.connect(audioContext.destination);
         }
-        await audioContext.resume();
+
+        if (audioContext.state === "suspended") {
+          console.log("⚡ Resuming audio context");
+          await audioContext.resume();
+        }
 
         if (!isPlaying) {
+          console.log("▶️ Playing audio:", audio.src);
           await audio.play();
           document.body.classList.add('playing');
           isPlaying = true;
         } else {
+          console.log("⏸ Pausing audio");
           audio.pause();
           document.body.classList.remove('playing');
           isPlaying = false;
         }
       } catch (err) {
-        console.error("Audio play failed:", err);
+        console.error("❌ Audio play failed:", err);
+        alert("⚠️ Audio blocked. Try clicking again.");
       }
+    }
+
+    // Make entire page clickable
+    document.body.addEventListener('click', async () => {
+      await togglePlayback();
+    });
+
+    // Avoid double trigger on button
+    playBtn.addEventListener('click', async (e) => {
+      e.stopPropagation();
+      await togglePlayback();
     });
   </script>
 </body>
