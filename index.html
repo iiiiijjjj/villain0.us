@@ -110,7 +110,7 @@
   <a href="https://open.spotify.com/artist/270SgoQaguqwQT9OLHYRrx" target="_blank" class="line">0</a>
   <a href="https://open.spotify.com/artist/270SgoQaguqwQT9OLHYRrx" target="_blank" class="line">CROSS</a>
 
-  <button class="play-btn" id="playBtn">♬</button>
+  <button class="play-btn" id="playBtn">𖦤</button>
   <div id="track-name"></div>
   <audio id="audio" preload="auto" crossorigin="anonymous"></audio>
   <canvas id="visualizer"></canvas>
@@ -154,11 +154,14 @@
       requestAnimationFrame(draw);
       analyser.getByteFrequencyData(dataArray);
       ctx.clearRect(0, 0, canvas.width, canvas.height);
-      const barWidth = canvas.width / bufferLength;
-      for (let i = 0; i < bufferLength; i++) {
+      const barWidth = (canvas.width / bufferLength) / 2;
+      for (let i = 0; i < bufferLength / 2; i++) {
         const height = dataArray[i];
         ctx.fillStyle = '#fff';
-        ctx.fillRect(i * barWidth, canvas.height - height, barWidth - 1, height);
+        const xLeft = (canvas.width / 2) - ((i + 1) * barWidth);
+        const xRight = (canvas.width / 2) + (i * barWidth);
+        ctx.fillRect(xLeft, canvas.height - height, barWidth - 1, height);
+        ctx.fillRect(xRight, canvas.height - height, barWidth - 1, height);
       }
     }
 
