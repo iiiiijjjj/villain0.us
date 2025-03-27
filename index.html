@@ -136,7 +136,7 @@
       return array;
     }
 
-    shuffle(tracks);
+    tracks = shuffle(tracks);
 
     const audio = document.getElementById('audio');
     const playBtn = document.getElementById('playBtn');
@@ -246,6 +246,17 @@
 
     window.addEventListener('resize', resizeCanvas);
     resizeCanvas();
+
+    // Try autoplay on load
+    window.addEventListener('load', () => {
+      if (!audioContext) setupVisualizer();
+      audioContext.resume().then(() => {
+        audio.play();
+        document.body.classList.add('playing');
+        displayTrackName(tracks[currentIndex].name);
+        isPlaying = true;
+      });
+    });
   </script>
 </body>
 </html>
