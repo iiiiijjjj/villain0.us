@@ -3,77 +3,98 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>OLLIE - 0CR0SS</title>
+  <title>OLLIE</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@700&display=swap" rel="stylesheet">
   <style>
-    @keyframes glow-pulse {
-      0%, 100% { text-shadow: 0 0 5px #fff, 0 0 10px #fff; }
-      50% { text-shadow: 0 0 10px #fff, 0 0 20px #fff; }
-    }
-
     body {
       margin: 0;
       padding: 0;
+      font-family: 'Orbitron', sans-serif;
       display: flex;
       flex-direction: column;
-      justify-content: center;
       align-items: center;
-      background-color: #000;
-      color: #fff;
-      font-family: 'Orbitron', sans-serif;
-      font-size: 2.5rem;
-      letter-spacing: 1px;
-      position: relative;
+      justify-content: center;
+      height: 100vh;
+      background-color: #fff;
+      color: #000;
       overflow: hidden;
+      transition: background-color 0.5s, color 0.5s;
     }
 
-    a.line {
+    body.playing {
+      background-color: #000;
+      color: #fff;
+    }
+
+    #topText, #bottomText {
+      font-size: 4rem;
+      margin: 0;
       text-decoration: none;
       color: inherit;
-      font-size: 4.5rem;
-      display: block;
-      width: 100%;
-      text-align: center;
-      line-height: 1;
-      z-index: 10;
     }
 
     .play-btn {
-      margin: 2rem 0 1rem 0;
+      font-size: 6rem;
       background: none;
       border: none;
       cursor: pointer;
+      margin: 2rem 0 1rem;
       color: inherit;
-      font-family: 'Orbitron', sans-serif;
-      font-size: 5rem;
-      animation: glow-pulse 1s infinite alternate;
       z-index: 10;
+      transition: text-shadow 0.2s;
+    }
+
+    .play-btn.pulse {
+      animation: glow-pulse 1s infinite alternate;
     }
 
     #track-name {
       font-size: 2rem;
-      margin-bottom: 1rem;
-      color: white;
-      text-transform: uppercase;
-      animation: glow-pulse 2s infinite alternate;
-      z-index: 10;
+      margin: 1rem 0;
+      transition: color 0.3s;
     }
 
-    #spotify-embed-wrapper {
+    #track-name.pulse {
+      animation: glow-pulse 2s infinite alternate;
+    }
+
+    @keyframes glow-pulse {
+      0%, 100% {
+        text-shadow: 0 0 10px #fff;
+      }
+      50% {
+        text-shadow: 0 0 20px #fff;
+      }
+    }
+
+    #spotifyContainer {
+      width: auto;
+      height: auto;
+      transition: all 0.3s ease;
+      overflow: hidden;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    body.playing #spotifyContainer {
       width: 80px;
       height: 80px;
-      overflow: hidden;
-      border-radius: 16px;
-      animation: glow-pulse 2s infinite alternate;
-      z-index: 10;
+      box-shadow: 0 0 30px white;
     }
 
-    #spotify-embed-wrapper iframe {
+    iframe {
+      border-radius: 12px;
       width: 100%;
-      height: 100%;
-      border: none;
+      height: 152px;
+      transition: all 0.3s ease;
+    }
+
+    body.playing iframe {
+      width: 80px;
+      height: 80px;
     }
 
     #visualizer, #particleCanvas {
@@ -82,31 +103,24 @@
       left: 0;
       width: 100vw;
       height: 100vh;
-      z-index: 0;
-      pointer-events: none;
-    }
-
-    #visualizer {
       z-index: 1;
+      pointer-events: none;
+      display: none;
     }
 
     body.playing #visualizer,
     body.playing #particleCanvas {
       display: block;
     }
-
-    canvas {
-      display: block;
-    }
   </style>
 </head>
 <body>
-  <a href="#" class="line">0</a>
-  <a href="#" class="line">CR0SS</a>
+  <a href="#" id="topText">0</a>
+  <a href="#" id="bottomText">CR0SS</a>
   <button class="play-btn" id="playBtn">𖦤</button>
   <div id="track-name">OLLIE</div>
-  <div id="spotify-embed-wrapper">
-    <iframe style="border-radius:12px" src="https://open.spotify.com/embed/album/2BneKwMX7HX7lKHAeDmPWK?utm_source=generator&theme=0" allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture" loading="lazy"></iframe>
+  <div id="spotifyContainer">
+    <iframe style="border:0" src="https://open.spotify.com/embed/album/2BneKwMX7HX7lKHAeDmPWK?utm_source=generator&theme=0" frameBorder="0" allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture" loading="lazy"></iframe>
   </div>
 
   <audio id="audio" src="zerocross - ollie (mixed).mp3" preload="auto" crossorigin="anonymous"></audio>
@@ -116,88 +130,100 @@
   <script>
     const audio = document.getElementById('audio');
     const playBtn = document.getElementById('playBtn');
-    const canvas = document.getElementById('visualizer');
-    const ctx = canvas.getContext('2d');
-    const particleCanvas = document.getElementById('particleCanvas');
-    const particleCtx = particleCanvas.getContext('2d');
     const trackName = document.getElementById('track-name');
+    const canvas = document.getElementById('visualizer');
+    const particleCanvas = document.getElementById('particleCanvas');
+    const ctx = canvas.getContext('2d');
+    const pctx = particleCanvas.getContext('2d');
 
-    let audioContext, source, analyser, dataArray, bufferLength, isPlaying = false;
+    let audioCtx, analyser, source, dataArray, bufferLength;
 
     const particles = Array.from({ length: 1000 }, () => ({
       x: Math.random() * window.innerWidth,
       y: Math.random() * window.innerHeight,
-      symbol: Math.random() > 0.5 ? '0' : 'X',
-      speed: Math.random() * 0.5 + 0.2
+      speed: Math.random() * 1 + 0.5,
+      char: Math.random() > 0.5 ? '0' : 'X'
     }));
 
-    function resizeCanvas() {
+    function resize() {
       canvas.width = particleCanvas.width = window.innerWidth;
       canvas.height = particleCanvas.height = window.innerHeight;
+    }
+
+    function setupAudio() {
+      audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+      analyser = audioCtx.createAnalyser();
+      source = audioCtx.createMediaElementSource(audio);
+      source.connect(analyser);
+      analyser.connect(audioCtx.destination);
+      analyser.fftSize = 256;
+      bufferLength = analyser.frequencyBinCount;
+      dataArray = new Uint8Array(bufferLength);
     }
 
     function drawVisualizer() {
       requestAnimationFrame(drawVisualizer);
       analyser.getByteFrequencyData(dataArray);
       ctx.clearRect(0, 0, canvas.width, canvas.height);
-      const barWidth = canvas.width / bufferLength;
-      const bass = dataArray.slice(0, 10).reduce((a, b) => a + b, 0) / 10;
 
-      trackName.style.textShadow = `0 0 ${bass / 5}px #fff`;
-      document.getElementById('spotify-embed-wrapper').style.boxShadow = `0 0 ${bass / 5}px #fff`;
-
+      const barW = canvas.width / bufferLength;
       for (let i = 0; i < bufferLength / 2; i++) {
-        const height = dataArray[i] * 2;
-        const xLeft = (canvas.width / 2) - ((i + 1) * barWidth);
-        const xRight = (canvas.width / 2) + (i * barWidth);
-        ctx.fillStyle = 'rgba(255,255,255,0.75)';
-        ctx.fillRect(xLeft, canvas.height - height, 1, height * 1.5);
-        ctx.fillRect(xRight, canvas.height - height, 1, height * 1.5);
+        const h = dataArray[i] * 2;
+        ctx.fillStyle = '#fff';
+        ctx.fillRect(canvas.width/2 - (i+1)*barW, canvas.height - h, 1, h);
+        ctx.fillRect(canvas.width/2 + i*barW, canvas.height - h, 1, h);
       }
 
-      particleCtx.clearRect(0, 0, particleCanvas.width, particleCanvas.height);
-      particleCtx.font = '10px Orbitron';
-      particleCtx.fillStyle = '#fff';
-      particles.forEach(p => {
-        p.y += (p.speed + bass / 200);
-        if (p.y > particleCanvas.height) p.y = 0;
-        particleCtx.fillText(p.symbol, p.x, p.y);
-      });
+      const bass = dataArray.slice(0, 10).reduce((a,b)=>a+b, 0) / 10;
+      playBtn.style.textShadow = `0 0 ${bass / 4}px #fff`;
+      trackName.style.textShadow = `0 0 ${bass / 4}px #fff`;
     }
 
-    function setupAudio() {
-      audioContext = new (window.AudioContext || window.webkitAudioContext)();
-      source = audioContext.createMediaElementSource(audio);
-      analyser = audioContext.createAnalyser();
-      source.connect(analyser);
-      analyser.connect(audioContext.destination);
-      analyser.fftSize = 256;
-      bufferLength = analyser.frequencyBinCount;
-      dataArray = new Uint8Array(bufferLength);
-      drawVisualizer();
+    function animateParticles() {
+      requestAnimationFrame(animateParticles);
+      analyser.getByteFrequencyData(dataArray);
+      pctx.clearRect(0, 0, particleCanvas.width, particleCanvas.height);
+      pctx.fillStyle = '#fff';
+      pctx.font = '10px Orbitron';
+      const bass = dataArray.slice(0, 10).reduce((a,b)=>a+b, 0) / 10;
+
+      particles.forEach(p => {
+        p.y += p.speed + bass / 100;
+        if (p.y > particleCanvas.height) p.y = 0;
+        pctx.fillText(p.char, p.x, p.y);
+      });
     }
 
     playBtn.addEventListener('click', async () => {
       try {
-        if (!audioContext) setupAudio();
-        if (audioContext.state !== 'running') await audioContext.resume();
+        if (!audioCtx) {
+          setupAudio();
+          drawVisualizer();
+          animateParticles();
+        }
+        if (audioCtx.state !== 'running') await audioCtx.resume();
 
-        if (!isPlaying) {
+        if (audio.paused) {
           await audio.play();
           document.body.classList.add('playing');
-          isPlaying = true;
+          playBtn.classList.add('pulse');
+          trackName.classList.add('pulse');
+          trackName.style.color = '#fff';
         } else {
           audio.pause();
           document.body.classList.remove('playing');
-          isPlaying = false;
+          playBtn.classList.remove('pulse');
+          trackName.classList.remove('pulse');
+          trackName.style.color = '#000';
         }
       } catch (err) {
-        alert('⚠️ Failed to start audio. Check browser permissions or click again.');
+        alert("⚠️ Audio blocked. Try clicking again.");
+        console.error(err);
       }
     });
 
-    window.addEventListener('resize', resizeCanvas);
-    resizeCanvas();
+    window.addEventListener('resize', resize);
+    resize();
   </script>
 </body>
 </html>
