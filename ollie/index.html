@@ -61,15 +61,11 @@
 
     .spotify-wrapper {
       margin-top: 2rem;
-      transition: all 0.4s ease;
-    }
-
-    .spotify-wrapper.playing {
-      width: 100px;
-      height: 100px;
+      width: 75px;
+      height: 75px;
       overflow: hidden;
       border-radius: 12px;
-      filter: brightness(1.2) contrast(1.1) grayscale(100%) drop-shadow(0 0 6px white);
+      transition: all 0.4s ease;
     }
 
     iframe {
@@ -77,8 +73,21 @@
       height: 80px;
       border: none;
       border-radius: 6px;
-      filter: grayscale(100%) brightness(1.2) contrast(1.1) drop-shadow(0 0 6px white);
-      transition: all 0.4s ease;
+      transform: scale(0.4);
+      transform-origin: top left;
+      pointer-events: none;
+      opacity: 0.95;
+      filter: grayscale(100%) brightness(1.2) contrast(1.1) drop-shadow(0 0 4px white);
+    }
+
+    canvas {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100vw;
+      height: 100vh;
+      pointer-events: none;
+      z-index: 0;
     }
   </style>
 </head>
@@ -97,62 +106,110 @@
     </iframe>
   </div>
 
-  <audio id="audio" preload="none" crossorigin="anonymous" src="zerocross%20-%20ollie%20(mixed).mp3"></audio>
+  <audio id="audio" preload="auto" crossorigin="anonymous" src="zerocross - ollie (mixed).mp3"></audio>
+
+  <canvas id="visualizer"></canvas>
+  <canvas id="particleCanvas"></canvas>
 
   <script>
-  const audio = document.getElementById('audio');
-  const playBtn = document.getElementById('playBtn');
-  const spotifyWrap = document.getElementById('spotifyWrap');
-  const trackNameDisplay = document.getElementById('track-name');
-  let audioContext, analyser, source;
-  let isPlaying = false;
+    const audio = document.getElementById('audio');
+    const playBtn = document.getElementById('playBtn');
+    const trackNameDisplay = document.getElementById('track-name');
+    const canvas = document.getElementById('visualizer');
+    const ctx = canvas.getContext('2d');
+    const particleCanvas = document.getElementById('particleCanvas');
+    const particleCtx = particleCanvas.getContext('2d');
 
-  async function setupAudioContext() {
-    audioContext = new (window.AudioContext || window.webkitAudioContext)();
-    source = audioContext.createMediaElementSource(audio);
-    analyser = audioContext.createAnalyser();
-    source.connect(analyser);
-    analyser.connect(audioContext.destination);
-  }
+    let audioContext, analyser, source;
+    let isPlaying = false;
+    let dataArray, bufferLength;
+    const particles = Array.from({ length: 1000 }, () => ({
+      x: Math.random() * window.innerWidth,
+      y: Math.random() * window.innerHeight,
+      symbol: Math.random() > 0.5 ? '0' : 'X',
+      speed: Math.random() * 0.5 + 0.2
+    }));
 
-  async function togglePlayback() {
-    try {
-      if (!audioContext) {
-        await setupAudioContext();
-      }
-      if (audioContext.state === 'suspended') {
-        await audioContext.resume();
-      }
-
-      if (!isPlaying) {
-        await audio.play();
-        document.body.classList.add('playing');
-        spotifyWrap.classList.add('playing');
-        trackNameDisplay.style.display = 'block';
-        isPlaying = true;
-      } else {
-        audio.pause();
-        document.body.classList.remove('playing');
-        spotifyWrap.classList.remove('playing');
-        trackNameDisplay.style.display = 'none';
-        isPlaying = false;
-      }
-    } catch (err) {
-      console.error("Playback failed:", err);
-      alert("Audio playback was blocked. Click again to retry.");
+    function setupVisualizer() {
+      audioContext = new (window.AudioContext || window.webkitAudioContext)();
+      source = audioContext.createMediaElementSource(audio);
+      analyser = audioContext.createAnalyser();
+      source.connect(analyser);
+      analyser.connect(audioContext.destination);
+      analyser.fftSize = 256;
+      bufferLength = analyser.frequencyBinCount;
+      dataArray = new Uint8Array(bufferLength);
+      draw();
+      animateParticles();
     }
-  }
 
-  document.body.addEventListener('click', async () => {
-    if (!isPlaying) {
+    function draw() {
+      requestAnimationFrame(draw);
+      analyser.getByteFrequencyData(dataArray);
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      const barWidth = canvas.width / bufferLength;
+      for (let i = 0; i < bufferLength / 2; i++) {
+        const height = dataArray[i] * 1.5;
+        ctx.fillStyle = 'rgba(255,255,255,0.75)';
+        const xLeft = (canvas.width / 2) - ((i + 1) * barWidth);
+        const xRight = (canvas.width / 2) + (i * barWidth);
+        ctx.fillRect(xLeft, canvas.height - height, 1, height);
+        ctx.fillRect(xRight, canvas.height - height, 1, height);
+      }
+    }
+
+    function animateParticles() {
+      requestAnimationFrame(animateParticles);
+      analyser.getByteFrequencyData(dataArray);
+      let bassAvg = dataArray.slice(0, 10).reduce((a, b) => a + b, 0) / 10;
+      particleCtx.clearRect(0, 0, particleCanvas.width, particleCanvas.height);
+      particleCtx.font = '10px Orbitron';
+      particleCtx.fillStyle = '#fff';
+      particles.forEach(p => {
+        p.y += (p.speed + bassAvg / 200);
+        if (p.y > particleCanvas.height) p.y = 0;
+        particleCtx.fillText(p.symbol, p.x, p.y);
+      });
+    }
+
+    function resizeCanvas() {
+      canvas.width = particleCanvas.width = window.innerWidth;
+      canvas.height = particleCanvas.height = window.innerHeight;
+    }
+
+    window.addEventListener('resize', resizeCanvas);
+    resizeCanvas();
+
+    async function togglePlayback() {
+      try {
+        if (!audioContext) setupVisualizer();
+        if (audioContext.state === 'suspended') await audioContext.resume();
+
+        if (!isPlaying) {
+          await audio.play();
+          document.body.classList.add('playing');
+          trackNameDisplay.style.display = 'block';
+          isPlaying = true;
+        } else {
+          audio.pause();
+          document.body.classList.remove('playing');
+          trackNameDisplay.style.display = 'none';
+          isPlaying = false;
+        }
+      } catch (err) {
+        console.error("Playback failed:", err);
+        alert("Audio playback was blocked. Click again to retry.");
+      }
+    }
+
+    document.body.addEventListener('click', async () => {
+      if (!isPlaying) await togglePlayback();
+    });
+
+    playBtn.addEventListener('click', async (e) => {
+      e.stopPropagation();
       await togglePlayback();
-    }
-  });
-
-  playBtn.addEventListener('click', async (e) => {
-    e.stopPropagation();
-    await togglePlayback();
-  });
-</script>
+    });
+  </script>
 </body>
 </html>
