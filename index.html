@@ -38,13 +38,16 @@
 
     .play-btn {
       margin-top: 2rem;
-      font-size: 2.5rem;
       background: none;
       border: none;
       cursor: pointer;
       color: #000;
       font-family: 'Orbitron', sans-serif;
       animation: glitch 2s infinite;
+    }
+
+    .play-style {
+      font-size: 4rem;
     }
 
     .pause-style {
@@ -58,7 +61,7 @@
   <div class="line">CROSS</div>
   <div class="line">WRAITH</div>
 
-  <button class="play-btn" id="playBtn">▶</button>
+  <button class="play-btn play-style" id="playBtn">▶</button>
   <audio id="audio" preload="auto"></audio>
 
   <script>
@@ -72,18 +75,17 @@
     const playBtn = document.getElementById('playBtn');
     let isPlaying = false;
     let currentIndex = Math.floor(Math.random() * tracks.length);
-    let hasPlayedOnce = false;
 
     audio.src = tracks[currentIndex];
 
-    function playTrack(index, restart = false) {
-      if (restart || !hasPlayedOnce) {
+    function playTrack(index, restart = true) {
+      if (restart) {
         audio.src = tracks[index];
         audio.currentTime = 0;
-        hasPlayedOnce = true;
       }
       audio.play();
       playBtn.textContent = '▐▐';
+      playBtn.classList.remove('play-style');
       playBtn.classList.add('pause-style');
       isPlaying = true;
     }
@@ -91,10 +93,11 @@
     playBtn.addEventListener('click', () => {
       if (!isPlaying) {
         if (audio.src === '') {
-          playTrack(currentIndex, true);
+          playTrack(currentIndex);
         } else {
           audio.play();
           playBtn.textContent = '▐▐';
+          playBtn.classList.remove('play-style');
           playBtn.classList.add('pause-style');
           isPlaying = true;
         }
@@ -102,6 +105,7 @@
         audio.pause();
         playBtn.textContent = '▶';
         playBtn.classList.remove('pause-style');
+        playBtn.classList.add('play-style');
         isPlaying = false;
       }
     });
@@ -112,8 +116,7 @@
         nextIndex = Math.floor(Math.random() * tracks.length);
       } while (nextIndex === currentIndex);
       currentIndex = nextIndex;
-      hasPlayedOnce = false;
-      playTrack(currentIndex, true);
+      playTrack(currentIndex);
     });
   </script>
 </body>
