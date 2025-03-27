@@ -97,64 +97,62 @@
     </iframe>
   </div>
 
-  <audio id="audio" preload="none" crossorigin="anonymous" src="zerocross%20-%20ollie%20(mixed).mp3"></audio>
-  
+  <audio id="audio" preload="none" crossorigin="anonymous" src="https://iiiiijjjj.github.io/villain0.us/zerocross%20-%20ollie%20(mixed).mp3"></audio>
+
   <script>
-    const audio = document.getElementById('audio');
-    const playBtn = document.getElementById('playBtn');
-    const trackNameDisplay = document.getElementById('track-name');
-    const spotifyWrap = document.getElementById('spotifyWrap');
-    let isPlaying = false;
-    let audioContext = null;
-    let hasConnected = false;
+  const audio = document.getElementById('audio');
+  const playBtn = document.getElementById('playBtn');
+  const spotifyWrap = document.getElementById('spotifyWrap');
+  const trackNameDisplay = document.getElementById('track-name');
+  let audioContext, analyser, source;
+  let isPlaying = false;
 
-    async function togglePlayback() {
-      try {
-        if (!audioContext) {
-          audioContext = new (window.AudioContext || window.webkitAudioContext)();
-        }
+  async function setupAudioContext() {
+    audioContext = new (window.AudioContext || window.webkitAudioContext)();
+    source = audioContext.createMediaElementSource(audio);
+    analyser = audioContext.createAnalyser();
+    source.connect(analyser);
+    analyser.connect(audioContext.destination);
+  }
 
-        if (!hasConnected) {
-          const source = audioContext.createMediaElementSource(audio);
-          source.connect(audioContext.destination);
-          hasConnected = true;
-        }
-
-        if (audioContext.state === "suspended") {
-          await audioContext.resume();
-        }
-
-        if (!isPlaying) {
-          await audio.play();
-          document.body.classList.add('playing');
-          spotifyWrap.classList.add('playing');
-          isPlaying = true;
-        } else {
-          audio.pause();
-          document.body.classList.remove('playing');
-          spotifyWrap.classList.remove('playing');
-          isPlaying = false;
-        }
-      } catch (err) {
-        console.error("❌ Audio play failed:", err);
-        alert("⚠️ Audio blocked. Try clicking again and check browser permissions.");
+  async function togglePlayback() {
+    try {
+      if (!audioContext) {
+        await setupAudioContext();
       }
-    }
+      if (audioContext.state === 'suspended') {
+        await audioContext.resume();
+      }
 
-    let hasInteracted = false;
-    document.body.addEventListener('click', async () => {
-      if (!hasInteracted) {
-        hasInteracted = true;
-        await togglePlayback();
+      if (!isPlaying) {
+        await audio.play();
+        document.body.classList.add('playing');
+        spotifyWrap.classList.add('playing');
+        trackNameDisplay.style.display = 'block';
+        isPlaying = true;
       } else {
-        togglePlayback();
+        audio.pause();
+        document.body.classList.remove('playing');
+        spotifyWrap.classList.remove('playing');
+        trackNameDisplay.style.display = 'none';
+        isPlaying = false;
       }
-    });
+    } catch (err) {
+      console.error("Playback failed:", err);
+      alert("Audio playback was blocked. Click again to retry.");
+    }
+  }
 
-    playBtn.addEventListener('click', async (e) => {
-      e.stopPropagation();
+  document.body.addEventListener('click', async () => {
+    if (!isPlaying) {
       await togglePlayback();
-    });
-  </script>
+    }
+  });
+
+  playBtn.addEventListener('click', async (e) => {
+    e.stopPropagation();
+    await togglePlayback();
+  });
+</script>
 </body>
 </html>
