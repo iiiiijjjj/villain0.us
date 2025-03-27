@@ -174,7 +174,6 @@
 
       let bass = dataArray.slice(0, 10).reduce((a, b) => a + b, 0) / 10;
 
-      // Glow effect based on bass level
       playBtn.style.textShadow = `0 0 ${bass / 4}px #fff, 0 0 ${bass / 2}px #fff`;
 
       for (let i = 0; i < bufferLength / 2; i++) {
@@ -220,11 +219,13 @@
 
     playBtn.addEventListener('click', () => {
       if (!isPlaying) {
-        audio.play();
         if (!audioContext) setupVisualizer();
-        document.body.classList.add('playing');
-        displayTrackName(tracks[currentIndex].name);
-        isPlaying = true;
+        audioContext.resume().then(() => {
+          audio.play();
+          document.body.classList.add('playing');
+          displayTrackName(tracks[currentIndex].name);
+          isPlaying = true;
+        });
       } else {
         audio.pause();
         document.body.classList.remove('playing');
@@ -245,10 +246,6 @@
 
     window.addEventListener('resize', resizeCanvas);
     resizeCanvas();
-
-    window.addEventListener('load', () => {
-      playBtn.click();
-    });
   </script>
 </body>
 </html>
