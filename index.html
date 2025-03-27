@@ -63,6 +63,7 @@
       color: inherit;
       font-family: 'Orbitron', sans-serif;
       transition: transform 0.2s;
+      position: relative;
     }
 
     .play-btn:hover {
@@ -74,11 +75,13 @@
     }
 
     .play-style {
-      font-size: 4rem;
+      font-size: 3.5rem;
     }
 
     .pause-style {
       font-size: 3rem;
+      left: 2px;
+      position: relative;
     }
 
     canvas {
@@ -140,11 +143,14 @@
       requestAnimationFrame(draw);
       analyser.getByteFrequencyData(dataArray);
       ctx.clearRect(0, 0, canvas.width, canvas.height);
-      const barWidth = canvas.width / bufferLength;
-      for (let i = 0; i < bufferLength; i++) {
+      const barWidth = (canvas.width / bufferLength) / 2;
+      for (let i = 0; i < bufferLength / 2; i++) {
         const height = dataArray[i];
         ctx.fillStyle = '#fff';
-        ctx.fillRect(i * barWidth, canvas.height - height, barWidth - 2, height);
+        const xLeft = (canvas.width / 2) - ((i + 1) * barWidth);
+        const xRight = (canvas.width / 2) + (i * barWidth);
+        ctx.fillRect(xLeft, canvas.height - height, barWidth - 2, height);
+        ctx.fillRect(xRight, canvas.height - height, barWidth - 2, height);
       }
     }
 
